@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mara EASA Logbook</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+:root{
+  --bg:#ffffff;
+  --text:#000000;
+  --header:#e5e5e5;
+}
+body.dark{
+  --bg:#121212;
+  --text:#ffffff;
+  --header:#1e1e1e;
+}
+body{
+  margin:0;
+  padding:12px;
+  font-family:Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+button{
+  padding:6px 8px;
+  font-size:11px;
+  font-weight:bold;
+  cursor:pointer;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:9px;
+}
+th, td{
+  border:1px solid var(--text);
+  padding:3px;
+  text-align:center;
+}
+th{
+  background:var(--header);
+}
+input, select{
+  width:100%;
+  border:none;
+  background:transparent;
+  color:var(--text);
+  text-align:center;
+  font-size:9px;
+}
+input:focus{
+  outline:none;
+  background:rgba(100,100,255,0.2);
+}
+tfoot td{
+  font-weight:bold;
+}
+.signature{
+  margin-top:20px;
+  border-top:1px solid var(--text);
+  padding-top:10px;
+}
+@media print{
+  button{display:none;}
+  @page{
+    size:A4 landscape;
+    margin:8mm;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+<h3>MARA EASA FCL.050 LOGBOOK</h3>
+<div>
+<button onclick="toggleTheme()">Theme</button>
+<button onclick="addRow()">+ Row</button>
+<button onclick="lockEntries()">Lock</button>
+<button onclick="backup()">Backup</button>
+<button onclick="restore()">Restore</button>
+<button onclick="window.print()">Export PDF</button>
+</div>
+</header>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>DEP</th>
+<th>ARR</th>
+<th>OUT</th>
+<th>IN</th>
+<th>Total</th>
+<th>Night</th>
+<th>IFR</th>
+<th>PIC</th>
+<th>PICUS</th>
+<th>COP</th>
+<th>Dual</th>
+<th>Type</th>
+<th>Reg</th>
+<th>TO Day</th>
+<th>LD Day</th>
+<th>TO Night</th>
+<th>LD Night</th>
+<th>SIM</th>
+<th>Remarks</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+<tfoot>
+<tr>
+<td colspan="5">TOTAL TIME</td>
+<td id="totalTime">00:00</td>
+<td id="totalNight">00:00</td>
+<td id="totalIFR">00:00</td>
+<td id="totalPIC">00:00</td>
+<td id="totalPICUS">00:00</td>
+<td id="totalCOP">00:00</td>
+<td id="totalDual">00:00</td>
+<td colspan="8"></td>
+</tr>
+</tfoot>
+</table>
+
+<div class="signature">
+Pilot Signature: ____________________________  
+Date: ____________________________
+</div>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("easaLogbook")) || [];
+let locked = false;
+
+function save(){
+  localStorage.setItem("easaLogbook", JSON.stringify(data));
+}
+
+function minutesToHHMM(m){
+  let h=Math.floor(m/60);
+  let min=m%60;
+  return String(h).padStart(2,"0")+":"+String(min).padStart(2,"0");
+}
+
+function hhmmToMinutes(t){
+  if(!/^\d{1,2}:\d{2}$/.test(t)) return 0;
+  let p=t.split(":");
+  return parseInt(p[0])*60+parseInt(p[1]);
+}
+
+function calculateBlock(out,inT){
+  if(!out||!inT) return "";
+  let o=hhmmToMinutes(out);
+  let i=hhmmToMinutes(inT);
+  if(i<o) i+=1440;
+  return minutesToHHMM(i-o);
+}
+
+function calculateTotals(){
+  let totals = {
+    total:0, night:0, ifr:0,
+    pic:0, picus:0, cop:0, dual:0
+  };
+
+  data.forEach(r=>{
+    let t=hhmmToMinutes(r.total||"0:0");
+    totals.total+=t;
+    totals.night+=hhmmToMinutes(r.night||"0:0");
+    totals.ifr+=hhmmToMinutes(r.ifr||"0:0");
+    totals.pic+=hhmmToMinutes(r.pic||"0:0");
+    totals.picus+=hhmmToMinutes(r.picus||"0:0");
+    totals.cop+=hhmmToMinutes(r.cop||"0:0");
+    totals.dual+=hhmmToMinutes(r.dual||"0:0");
+  });
+
+  document.getElementById("totalTime").innerText=minutesToHHMM(totals.total);
+  document.getElementById("totalNight").innerText=minutesToHHMM(totals.night);
+  document.getElementById("totalIFR").innerText=minutesToHHMM(totals.ifr);
+  document.getElementById("totalPIC").innerText=minutesToHHMM(totals.pic);
+  document.getElementById("totalPICUS").innerText=minutesToHHMM(totals.picus);
+  document.getElementById("totalCOP").innerText=minutesToHHMM(totals.cop);
+  document.getElementById("totalDual").innerText=minutesToHHMM(totals.dual);
+}
+
+function render(){
+  const tbody=document.getElementById("tbody");
+  tbody.innerHTML="";
+
+  data.forEach((row,index)=>{
+    let tr=document.createElement("tr");
+
+    Object.keys(row).forEach(key=>{
+      let td=document.createElement("td");
+      let input=document.createElement("input");
+      input.value=row[key];
+      input.disabled=locked;
+
+      input.oninput=(e)=>{
+        data[index][key]=e.target.value;
+
+        if(key==="out"||key==="in"){
+          data[index].total=calculateBlock(data[index].out,data[index].in);
+        }
+
+        save();
+        calculateTotals();
+      };
+
+      td.appendChild(input);
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  calculateTotals();
+}
+
+function addRow(){
+  data.push({
+    date:"", dep:"", arr:"",
+    out:"", in:"",
+    total:"", night:"", ifr:"",
+    pic:"", picus:"", cop:"", dual:"",
+    type:"", reg:"",
+    today:"", ldday:"",
+    tonight:"", ldnight:"",
+    sim:"",
+    remarks:""
+  });
+  save(); render();
+}
+
+function lockEntries(){
+  locked=!locked;
+  render();
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+}
+
+function backup(){
+  const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="easa-logbook-backup.json";
+  a.click();
+}
+
+function restore(){
+  let input=document.createElement("input");
+  input.type="file";
+  input.accept=".json";
+  input.onchange=(e)=>{
+    const file=e.target.files[0];
+    const reader=new FileReader();
+    reader.onload=function(){
+      data=JSON.parse(reader.result);
+      save(); render();
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+if(data.length===0) addRow();
+render();
+
+</script>
+
+</body>
+</html>
+{
+  "name": "Mara EASA Logbook",
+  "short_name": "Logbook",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000"
+}
+self.addEventListener("install", e=>{
+  self.skipWaiting();
+});
+self.addEventListener("fetch", e=>{});
