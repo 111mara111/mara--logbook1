@@ -18,11 +18,16 @@
   <style>
     /* =========================
        Mara Logbook UI (Dark/Light)
-       Fixed 10 rows per page
-       iPad modal fix: scroll + sticky buttons
+       ALL CAPS inputs
+       TAB copies previous time (H:MM)
+       Footer totals row colors:
+         - Dark: yellow
+         - Light: dark blue
+       Light theme: ALL yellow fonts -> dark blue
        ========================= */
 
     :root{
+      /* DARK (default) */
       --bg: #071326;
       --panel: rgba(10, 24, 50, 0.72);
       --panel2: rgba(10, 24, 50, 0.55);
@@ -43,23 +48,34 @@
       --rowHover: rgba(217,187,98,.08);
 
       --shadow: 0 24px 80px rgba(0,0,0,.35);
+
+      /* Totals highlight color for footer rows */
+      --totals-accent: var(--gold); /* dark => yellow */
     }
 
     body.light{
+      /* LIGHT */
       --bg: #eef3ff;
-      --panel: rgba(255,255,255,.82);
-      --panel2: rgba(255,255,255,.72);
+      --panel: rgba(255,255,255,.92);
+      --panel2: rgba(255,255,255,.82);
       --ink: #0b1a33;
       --muted: rgba(11,26,51,.65);
       --line: rgba(11,26,51,.12);
       --line2: rgba(11,26,51,.06);
 
-      --thead: rgba(234,241,255,.9);
-      --row: rgba(255,255,255,.9);
-      --rowAlt: rgba(245,248,255,.95);
-      --rowHover: rgba(217,187,98,.12);
+      /* keep variables but we will NOT show yellow text in light */
+      --gold: #0b2a55;   /* yellow -> dark blue in light */
+      --gold2:#0b2a55;
+
+      --thead: rgba(234,241,255,.95);
+      --row: rgba(255,255,255,.98);
+      --rowAlt: rgba(245,248,255,.98);
+      --rowHover: rgba(11,42,85,.08);
 
       --shadow: 0 24px 70px rgba(10,25,60,.12);
+
+      /* Totals highlight color for footer rows */
+      --totals-accent: #0b2a55; /* light => dark blue */
     }
 
     *{box-sizing:border-box}
@@ -145,7 +161,7 @@
       font-weight: 900;
       font-size: 22px;
       letter-spacing: 1px;
-      color: var(--gold);
+      color: var(--gold); /* dark yellow, light dark-blue */
       font-variant-numeric: tabular-nums;
     }
     .kpi .l{
@@ -176,6 +192,7 @@
       cursor:pointer;
       transition: transform .12s, background .12s, border-color .12s, opacity .12s;
       white-space: nowrap;
+      text-transform: uppercase;
     }
     .btn:hover{ transform: translateY(-1px); border-color: rgba(217,187,98,.35); }
     .btn:active{ transform: translateY(0px); opacity: .9; }
@@ -185,7 +202,8 @@
       color: #1b1b1b;
       border-color: rgba(0,0,0,0);
     }
-    .btn.gold:hover{ border-color: rgba(0,0,0,0); }
+    /* in LIGHT theme, gold is dark blue, so text should be white */
+    body.light .btn.gold{ color:#fff; }
 
     .btn.danger{
       background: rgba(208,107,95,.12);
@@ -272,9 +290,11 @@
       font-weight: 900;
       outline: none;
       font-variant-numeric: tabular-nums;
+      text-transform: uppercase; /* ALL CAPS always */
     }
-    body.light .field input{ background: rgba(255,255,255,.8); }
+    body.light .field input{ background: rgba(255,255,255,.92); }
     .field input:focus{ border-color: rgba(217,187,98,.45); }
+    body.light .field input:focus{ border-color: rgba(11,42,85,.35); }
 
     /* ===== Table ===== */
     .table-wrap{
@@ -308,6 +328,9 @@
     tbody tr:nth-child(even){ background: var(--rowAlt); }
     tbody tr:hover{ background: var(--rowHover); }
 
+    /* ALL CAPS always for ALL inputs (table + modal) */
+    input, textarea, select { text-transform: uppercase; }
+
     .cell{
       width: 100%;
       border: none;
@@ -318,6 +341,7 @@
       text-align: center;
       font-size: 11px;
       padding: 2px 0;
+      text-transform: uppercase; /* force caps */
     }
     .cell::placeholder{ color: rgba(160,180,220,.55); font-weight: 800; }
     body.light .cell::placeholder{ color: rgba(90,110,150,.55); }
@@ -330,7 +354,11 @@
       background: rgba(217,187,98,.10);
       border-radius: 8px;
     }
+    body.light .cell:focus{
+      background: rgba(11,42,85,.08);
+    }
 
+    /* ===== Totals rows colors ===== */
     tfoot td{
       background: rgba(255,255,255,.03);
       color: var(--muted);
@@ -344,11 +372,27 @@
       color: var(--muted);
       font-size: 10px;
     }
+
+    /* TOTAL FROM THIS PAGE & PREVIOUS PAGE: yellow on dark, dark-blue on light */
+    .total-this td, .total-prev td{
+      color: var(--totals-accent);
+      background: rgba(217,187,98,.06);
+    }
+    body.light .total-this td, body.light .total-prev td{
+      background: rgba(11,42,85,.06);
+    }
+    .total-this .tfLabel, .total-prev .tfLabel{ color: var(--totals-accent); }
+
+    /* GRAND row stays highlighted too */
     .grand td{
       border-top: 2px solid rgba(217,187,98,.25);
       background: rgba(217,187,98,.10);
-      color: var(--gold);
+      color: var(--totals-accent);
       font-size: 12px;
+    }
+    body.light .grand td{
+      border-top: 2px solid rgba(11,42,85,.25);
+      background: rgba(11,42,85,.10);
     }
 
     .del{
@@ -359,6 +403,7 @@
       cursor:pointer;
       font-weight: 900;
       padding: 6px 10px;
+      text-transform: uppercase;
     }
 
     /* ===== Modal ===== */
@@ -428,7 +473,9 @@
       font-size: 12px;
       line-height: 1.35;
       background: rgba(255,255,255,.03);
+      text-transform: none; /* hint can be normal */
     }
+    .hint b{ text-transform: uppercase; }
 
     .scanRow{
       grid-column: 1 / -1;
@@ -473,22 +520,18 @@
     /* Sticky action buttons always visible */
     .modal-actions{
       grid-column: 1 / -1;
-
       position: sticky;
       bottom: 0;
-
       display:flex;
       justify-content:flex-end;
       gap:10px;
       flex-wrap:wrap;
-
       padding: 12px 0 6px;
       margin-top: 6px;
-
       background: linear-gradient(180deg, transparent, rgba(0,0,0,.18));
     }
     body.light .modal-actions{
-      background: linear-gradient(180deg, transparent, rgba(255,255,255,.90));
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,.92));
     }
 
     @media (max-width: 1100px){
@@ -564,7 +607,7 @@
       <div class="panel-h">
         <div class="left">📘 LOGBOOK PAGE (10 ROWS)</div>
         <div class="right">
-          <span style="color:var(--muted);font-weight:900;font-size:12px;letter-spacing:1px;">
+          <span style="color:var(--muted);font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;">
             Auto-saved locally • Works offline
           </span>
         </div>
@@ -637,9 +680,9 @@
         </div>
 
         <div class="hint">
-          <b>Note:</b> On GitHub Pages this app works offline and saves locally.
-          Photo/PDF buttons store a preview reference (no AI extraction here without a backend).
-          Use <b>IMPORT (PHOTO PAGE)</b> to auto-fill the sample 10 flights.
+          <b>NOTE:</b> ON GITHUB PAGES THIS APP WORKS OFFLINE AND SAVES LOCALLY.
+          PHOTO/PDF BUTTONS STORE A PREVIEW REFERENCE (NO AI EXTRACTION HERE WITHOUT A BACKEND).
+          USE <b>IMPORT (PHOTO PAGE)</b> TO AUTO-FILL THE SAMPLE 10 FLIGHTS.
         </div>
 
         <div class="preview" id="photoPrev"></div>
@@ -660,13 +703,13 @@
         <div class="field"><label>SE (H:MM)</label><input id="f_se" placeholder=""></div>
         <div class="field"><label>ME (H:MM)</label><input id="f_me" placeholder=""></div>
 
-        <div class="field"><label>Multi Pilot (H:MM)</label><input id="f_mp" placeholder="auto"></div>
-        <div class="field"><label>Total Flight (H:MM)</label><input id="f_total" placeholder="auto"></div>
+        <div class="field"><label>Multi Pilot (H:MM)</label><input id="f_mp" placeholder="AUTO"></div>
+        <div class="field"><label>Total Flight (H:MM)</label><input id="f_total" placeholder="AUTO"></div>
 
         <div class="field"><label>Night (H:MM)</label><input id="f_night" placeholder=""></div>
-        <div class="field"><label>IFR Actual (H:MM)</label><input id="f_ifr" placeholder="auto"></div>
+        <div class="field"><label>IFR Actual (H:MM)</label><input id="f_ifr" placeholder="AUTO"></div>
 
-        <div class="field"><label>PIC (H:MM)</label><input id="f_pic" placeholder="auto"></div>
+        <div class="field"><label>PIC (H:MM)</label><input id="f_pic" placeholder="AUTO"></div>
         <div class="field"><label>Co-Pilot (H:MM)</label><input id="f_cop" placeholder=""></div>
 
         <div class="field"><label>Dual (H:MM)</label><input id="f_dual" placeholder=""></div>
@@ -677,7 +720,6 @@
 
         <div class="field" style="grid-column:1/-1"><label>Remarks</label><input id="f_rem" placeholder=""></div>
 
-        <!-- ALWAYS VISIBLE -->
         <div class="modal-actions">
           <button class="btn" onclick="closeModal()">Cancel</button>
           <button class="btn gold" onclick="saveFromModal()">Save Flight</button>
@@ -690,18 +732,17 @@
 /* =========================
    Storage + State
    ========================= */
-const KEY_FLIGHTS = "mara_book_flights_v2";
-const KEY_PREV    = "mara_book_prev_v2";
-const KEY_THEME   = "mara_book_theme_v2";
-const KEY_ATTACH  = "mara_book_attach_v2";
+const KEY_FLIGHTS = "mara_book_flights_v3";
+const KEY_PREV    = "mara_book_prev_v3";
+const KEY_THEME   = "mara_book_theme_v3";
+const KEY_ATTACH  = "mara_book_attach_v3";
 const ROWS_PER_PAGE = 10;
-const KEY_PAGE = "mara_page_v1";
+const KEY_PAGE = "mara_page_v2";
 
 let currentPage = parseInt(localStorage.getItem(KEY_PAGE) || "1", 10);
 if (!currentPage || currentPage < 1) currentPage = 1;
 
-let flights = loadJSON(KEY_FLIGHTS, []); // store null placeholders too
-
+let flights = loadJSON(KEY_FLIGHTS, []);
 let prev = loadJSON(KEY_PREV, {
   mp_me: "0:00",
   total: "0:00",
@@ -714,7 +755,6 @@ let prev = loadJSON(KEY_PREV, {
   ldg_day: "0",
   ldg_night: "0"
 });
-
 let attach = loadJSON(KEY_ATTACH, { photoDataUrl: "", pdfName: "" });
 
 function loadJSON(k, fallback){
@@ -756,8 +796,10 @@ function toggleTheme(){
 }
 
 /* =========================
-   Time utils
+   Time utils + TAB copy previous time (H:MM)
    ========================= */
+let _lastTimeValue = ""; // remembers last typed H:MM
+
 function toMins(hhmm){
   if(!hhmm) return 0;
   const s = String(hhmm).trim();
@@ -797,6 +839,37 @@ function calcBlock(outHHMM, inHHMM){
 }
 function up(s){ return (s||"").toUpperCase(); }
 
+function isTimeHM(s){
+  return /^\d+:\d{2}$/.test(String(s||"").trim());
+}
+function normalizeHM(v){
+  const s = String(v||"").trim();
+  if(!s) return "";
+  if(s.includes(":")){
+    const parts = s.split(":");
+    const hh = parseInt(parts[0],10);
+    const mm = parseInt(parts[1],10);
+    if(Number.isNaN(hh) || Number.isNaN(mm) || mm>59) return up(s);
+    return String(hh) + ":" + (mm<10?"0":"") + String(mm);
+  }
+  const d = s.replace(/[^0-9]/g,"");
+  if(d.length===4){
+    const hh = parseInt(d.slice(0,2),10);
+    const mm = parseInt(d.slice(2),10);
+    if(mm>59) return "";
+    return String(hh) + ":" + (mm<10?"0":"") + String(mm);
+  }
+  if(d.length===3){
+    const hh = parseInt(d.slice(0,1),10);
+    const mm = parseInt(d.slice(1),10);
+    if(mm>59) return "";
+    return String(hh) + ":" + (mm<10?"0":"") + String(mm);
+  }
+  return up(s);
+}
+
+const TIME_KEYS = ["se","me","mp","total","night","ifr","pic","cop","dual","fi"];
+
 /* =========================
    Previous totals UI
    ========================= */
@@ -823,25 +896,38 @@ function renderPrev(){
     grid.appendChild(d);
     const el = d.querySelector("input");
     el.addEventListener("input", ()=>{
+      // ALL CAPS for inputs always
+      if(!k.includes("ldg")) el.value = up(el.value);
       prev[k] = el.value;
       saveJSON(KEY_PREV, prev);
       render();
+    });
+    el.addEventListener("blur", ()=>{
+      if(!k.includes("ldg")) el.value = up(el.value);
+      if(k==="mp_me" || k==="total" || k==="night" || k==="ifr" || k==="pic" || k==="cop" || k==="dual" || k==="fi"){
+        const norm = normalizeHM(el.value);
+        if(norm) el.value = norm;
+        if(isTimeHM(el.value)) _lastTimeValue = el.value;
+        prev[k] = el.value;
+        saveJSON(KEY_PREV, prev);
+        render();
+      }
     });
   });
 }
 
 /* =========================
-   Table cell helper
+   Table cell helper (TAB copies previous time)
    ========================= */
 function cellInput(idx, key, val, ph, cls){
   const c = ("cell " + (cls||"")).trim();
   const v = (val===undefined || val===null) ? "" : String(val);
-  return '<input class="'+c+'" value="'+escapeHTML(v)+'" placeholder="'+escapeHTML(ph||"")+'" oninput="onCell('+idx+', \''+key+'\', this.value)">';
+  return '<input class="'+c+'" value="'+escapeHTML(v)+'" placeholder="'+escapeHTML(ph||"")+'" ' +
+    'oninput="onCell('+idx+', \''+key+'\', this.value)" ' +
+    'onblur="onCellBlur('+idx+', \''+key+'\', this)" ' +
+    'onkeydown="onCellKeyDown(event, '+idx+', \''+key+'\', this)">' ;
 }
 
-/* =========================
-   Editing logic
-   ========================= */
 function ensureRowObject(i){
   if (flights[i]) return;
   flights[i] = {
@@ -858,12 +944,18 @@ function ensureRowObject(i){
 function onCell(i, key, value){
   ensureRowObject(i);
   const f = flights[i];
-  f[key] = value;
 
-  if(["depPlace","arrPlace","acType","acReg","name"].includes(key)){
-    f[key] = up(value);
+  // ALL CAPS always for all inputs (including remarks)
+  f[key] = up(value);
+
+  // keep digits/colon as-is for times; still uppercase doesn't harm
+  if(key==="out" || key==="in"){
+    // OUT/IN is HHMM, keep only digits if user typed letters by mistake
+    const digits = String(f[key]||"").replace(/[^0-9]/g,"");
+    if(digits) f[key] = digits;
   }
 
+  // auto block time when OUT/IN change
   if(key==="out" || key==="in"){
     const block = calcBlock(f.out, f.in);
     if(block!==null){
@@ -880,8 +972,39 @@ function onCell(i, key, value){
   render();
 }
 
+function onCellBlur(i, key, el){
+  // ALL CAPS always
+  el.value = up(el.value);
+
+  // normalize time columns to H:MM
+  if(TIME_KEYS.includes(key)){
+    const norm = normalizeHM(el.value);
+    if(norm) el.value = norm;
+    if(isTimeHM(el.value)) _lastTimeValue = el.value;
+  }
+
+  // normalize OUT/IN digits only
+  if(key==="out" || key==="in"){
+    const digits = String(el.value||"").replace(/[^0-9]/g,"");
+    el.value = digits;
+  }
+
+  onCell(i, key, el.value);
+}
+
+function onCellKeyDown(e, i, key, el){
+  if(e.key !== "Tab") return;
+
+  // If current is empty and last time exists, copy it into this time field
+  const empty = !String(el.value||"").trim();
+  if(empty && TIME_KEYS.includes(key) && isTimeHM(_lastTimeValue)){
+    el.value = _lastTimeValue;
+    onCell(i, key, el.value);
+  }
+}
+
 function clearRow(index){
-  if(!confirm("Clear this row?")) return;
+  if(!confirm("CLEAR THIS ROW?")) return;
   flights[index] = null;
   saveJSON(KEY_FLIGHTS, flights);
   render();
@@ -991,7 +1114,7 @@ function render(){
   document.getElementById("pageLabel").textContent = "PAGE " + currentPage + " / " + maxPage;
 
   document.getElementById("tfoot").innerHTML =
-    '<tr>'+
+    '<tr class="total-this">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM THIS PAGE</td>'+
       '<td>'+(sum.se?fmtMins(sum.se):"—")+'</td>'+
       '<td>'+(sum.me?fmtMins(sum.me):"—")+'</td>'+
@@ -1007,7 +1130,7 @@ function render(){
       '<td>'+(sum.ldgNight||"—")+'</td>'+
       '<td colspan="2"></td>'+
     '</tr>'+
-    '<tr>'+
+    '<tr class="total-prev">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM PREVIOUS PAGE</td>'+
       '<td>—</td><td>—</td>'+
       '<td>'+(p.mp?fmtMins(p.mp):"—")+'</td>'+
@@ -1053,51 +1176,50 @@ function closeModal(){
   document.getElementById("overlay").classList.remove("open");
 }
 function overlayClick(e){
-  // keep tap-outside close, but iPad-safe because Save is always visible now
   if(e.target && e.target.id==="overlay") closeModal();
 }
 
 /* =========================
-   Add flight (place into first empty row on current page, else next page)
+   Add flight (first empty row on current page, else next page)
    ========================= */
 function saveFromModal(){
-  const get = id => document.getElementById(id).value.trim();
+  const get = id => up(document.getElementById(id).value.trim());
 
-  const out = get("f_out");
-  const inn = get("f_in");
+  const out = String(get("f_out")).replace(/[^0-9]/g,"");
+  const inn = String(get("f_in")).replace(/[^0-9]/g,"");
   const block = calcBlock(out, inn);
   const blockStr = block!==null ? fmtMins(block) : "";
 
-  const total = get("f_total") || blockStr;
-  const mp    = get("f_mp") || total;
-  const se    = get("f_se");
-  const me    = get("f_me") || (!se ? mp : "");
+  const total = normalizeHM(get("f_total")) || blockStr;
+  const mp    = normalizeHM(get("f_mp")) || total;
+  const se    = normalizeHM(get("f_se"));
+  const me    = normalizeHM(get("f_me")) || (!se ? mp : "");
 
-  const ifr   = get("f_ifr") || total;
-  const pic   = get("f_pic") || total;
+  const ifr   = normalizeHM(get("f_ifr")) || total;
+  const pic   = normalizeHM(get("f_pic")) || total;
 
   const row = {
     id: Date.now() + Math.floor(Math.random()*100000),
     date: get("f_date"),
-    depPlace: up(get("f_dep")),
+    depPlace: get("f_dep"),
     out: out,
-    arrPlace: up(get("f_arr")),
+    arrPlace: get("f_arr"),
     in: inn,
-    acType: up(get("f_type")),
-    acReg: up(get("f_reg")),
-    name: up(get("f_name") || "SELF"),
+    acType: get("f_type"),
+    acReg: get("f_reg"),
+    name: get("f_name") || "SELF",
     se: se,
     me: me,
     mp: mp,
     total: total,
-    night: get("f_night"),
+    night: normalizeHM(get("f_night")),
     ifr: ifr,
     pic: pic,
-    cop: get("f_cop"),
-    dual: get("f_dual"),
-    fi: get("f_fi"),
-    ldgDay: get("f_ldg_day") || "0",
-    ldgNight: get("f_ldg_night") || "0",
+    cop: normalizeHM(get("f_cop")),
+    dual: normalizeHM(get("f_dual")),
+    fi: normalizeHM(get("f_fi")),
+    ldgDay: String(document.getElementById("f_ldg_day").value || "0").trim(),
+    ldgNight: String(document.getElementById("f_ldg_night").value || "0").trim(),
     remarks: get("f_rem")
   };
 
@@ -1127,6 +1249,8 @@ function saveFromModal(){
     flights[newStart] = row;
   }
 
+  if(isTimeHM(row.total)) _lastTimeValue = row.total;
+
   saveJSON(KEY_FLIGHTS, flights);
   closeModal();
   render();
@@ -1151,7 +1275,7 @@ document.getElementById("photoInput").addEventListener("change", (e)=>{
 document.getElementById("pdfInput").addEventListener("change", (e)=>{
   const file = e.target.files && e.target.files[0];
   if(!file) return;
-  attach.pdfName = file.name || "logbook.pdf";
+  attach.pdfName = up(file.name || "LOGBOOK.PDF");
   saveJSON(KEY_ATTACH, attach);
   renderAttachPreview();
 });
@@ -1160,12 +1284,12 @@ function renderAttachPreview(){
   const p = document.getElementById("photoPrev");
   if(attach.photoDataUrl){
     p.style.display = "block";
-    p.innerHTML = '<img src="'+attach.photoDataUrl+'" alt="photo preview">';
+    p.innerHTML = '<img src="'+attach.photoDataUrl+'" alt="PHOTO PREVIEW">';
   }else{
     p.style.display = "none";
     p.innerHTML = "";
   }
-  document.getElementById("pdfName").textContent = attach.pdfName ? ("Selected PDF: " + attach.pdfName) : "";
+  document.getElementById("pdfName").textContent = attach.pdfName ? ("SELECTED PDF: " + attach.pdfName) : "";
 }
 
 /* =========================
@@ -1181,7 +1305,7 @@ function exportBackup(){
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "mara-logbook-backup.json";
+  a.download = "MARA-LOGBOOK-BACKUP.JSON";
   a.click();
 }
 function importBackup(){
@@ -1208,7 +1332,7 @@ function importBackup(){
         renderPrev();
         render();
       }catch(e){
-        alert("Backup file not valid.");
+        alert("BACKUP FILE NOT VALID.");
       }
     };
     r.readAsText(file);
@@ -1216,7 +1340,7 @@ function importBackup(){
   input.click();
 }
 function resetAll(){
-  if(!confirm("Reset ALL data (flights + previous totals + attachments)?")) return;
+  if(!confirm("RESET ALL DATA (FLIGHTS + PREVIOUS TOTALS + ATTACHMENTS)?")) return;
 
   localStorage.removeItem(KEY_FLIGHTS);
   localStorage.removeItem(KEY_PREV);
@@ -1252,7 +1376,7 @@ function resetAll(){
    Import sample 10 flights (your photo page)
    ========================= */
 function seedFromPhoto(){
-  if(!confirm("Import the 10 flights from your logbook photo page into Page 1?")) return;
+  if(!confirm("IMPORT THE 10 FLIGHTS FROM YOUR LOGBOOK PHOTO PAGE INTO PAGE 1?")) return;
 
   const seeded = [
     {date:"23.11", depPlace:"RCTP", out:"1300", arrPlace:"VTBS", in:"1642", acType:"B781", acReg:"B-17812", name:"SELF", total:"3:42", mp:"3:42", me:"3:42", night:"3:42", ifr:"3:42", pic:"3:42", ldgDay:"0", ldgNight:"0"},
@@ -1274,26 +1398,26 @@ function seedFromPhoto(){
     const x = seeded[i];
     flights[i] = {
       id: Date.now() + Math.floor(Math.random()*100000),
-      date: x.date,
-      depPlace: x.depPlace,
-      out: x.out,
-      arrPlace: x.arrPlace,
-      in: x.in,
-      acType: x.acType,
-      acReg: x.acReg,
-      name: x.name,
+      date: up(x.date),
+      depPlace: up(x.depPlace),
+      out: String(x.out).replace(/[^0-9]/g,""),
+      arrPlace: up(x.arrPlace),
+      in: String(x.in).replace(/[^0-9]/g,""),
+      acType: up(x.acType),
+      acReg: up(x.acReg),
+      name: up(x.name),
       se: "",
-      me: x.me,
-      mp: x.mp,
-      total: x.total,
-      night: x.night,
-      ifr: x.ifr,
-      pic: x.pic,
+      me: up(x.me),
+      mp: up(x.mp),
+      total: up(x.total),
+      night: up(x.night),
+      ifr: up(x.ifr),
+      pic: up(x.pic),
       cop: "",
       dual: "",
       fi: "",
-      ldgDay: x.ldgDay,
-      ldgNight: x.ldgNight,
+      ldgDay: String(x.ldgDay),
+      ldgNight: String(x.ldgNight),
       remarks: ""
     };
   }
@@ -1301,6 +1425,8 @@ function seedFromPhoto(){
   currentPage = 1;
   localStorage.setItem(KEY_PAGE, "1");
   saveJSON(KEY_FLIGHTS, flights);
+
+  _lastTimeValue = isTimeHM(flights[0]?.total) ? flights[0].total : _lastTimeValue;
   render();
 }
 
