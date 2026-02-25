@@ -18,12 +18,11 @@
   <style>
     /* =========================
        Mara Logbook UI (Dark/Light)
-       ALL CAPS inputs
-       TAB copies previous time (H:MM)
-       Footer totals row colors:
-         - Dark: yellow
-         - Light: dark blue
-       Light theme: ALL yellow fonts -> dark blue
+       - 10 ROWS PER PAGE
+       - ALL CAPS ALWAYS
+       - TAB on empty time field copies previous (H:MM)
+       - Adds: FSTD SESSION (DATE/TYPE/TOTAL) + REMARKS
+       - LIGHT uses SAME YELLOW FONTS as DARK
        ========================= */
 
     :root{
@@ -50,7 +49,7 @@
       --shadow: 0 24px 80px rgba(0,0,0,.35);
 
       /* Totals highlight color for footer rows */
-      --totals-accent: var(--gold); /* dark => yellow */
+      --totals-accent: var(--gold);
     }
 
     body.light{
@@ -63,19 +62,17 @@
       --line: rgba(11,26,51,.12);
       --line2: rgba(11,26,51,.06);
 
-      /* keep variables but we will NOT show yellow text in light */
-      --gold: #0b2a55;   /* yellow -> dark blue in light */
-      --gold2:#0b2a55;
+      /* SAME YELLOW as DARK */
+      --gold: #d9bb62;
+      --gold2:#caa84a;
+      --totals-accent: var(--gold);
 
       --thead: rgba(234,241,255,.95);
       --row: rgba(255,255,255,.98);
       --rowAlt: rgba(245,248,255,.98);
-      --rowHover: rgba(11,42,85,.08);
+      --rowHover: rgba(217,187,98,.10);
 
       --shadow: 0 24px 70px rgba(10,25,60,.12);
-
-      /* Totals highlight color for footer rows */
-      --totals-accent: #0b2a55; /* light => dark blue */
     }
 
     *{box-sizing:border-box}
@@ -161,7 +158,7 @@
       font-weight: 900;
       font-size: 22px;
       letter-spacing: 1px;
-      color: var(--gold); /* dark yellow, light dark-blue */
+      color: var(--gold);
       font-variant-numeric: tabular-nums;
     }
     .kpi .l{
@@ -202,8 +199,6 @@
       color: #1b1b1b;
       border-color: rgba(0,0,0,0);
     }
-    /* in LIGHT theme, gold is dark blue, so text should be white */
-    body.light .btn.gold{ color:#fff; }
 
     .btn.danger{
       background: rgba(208,107,95,.12);
@@ -290,11 +285,10 @@
       font-weight: 900;
       outline: none;
       font-variant-numeric: tabular-nums;
-      text-transform: uppercase; /* ALL CAPS always */
+      text-transform: uppercase;
     }
     body.light .field input{ background: rgba(255,255,255,.92); }
     .field input:focus{ border-color: rgba(217,187,98,.45); }
-    body.light .field input:focus{ border-color: rgba(11,42,85,.35); }
 
     /* ===== Table ===== */
     .table-wrap{
@@ -304,7 +298,7 @@
     }
     table{
       width: 100%;
-      min-width: 1500px;
+      min-width: 1750px;
       border-collapse: collapse;
       font-size: 11px;
       font-variant-numeric: tabular-nums;
@@ -328,7 +322,7 @@
     tbody tr:nth-child(even){ background: var(--rowAlt); }
     tbody tr:hover{ background: var(--rowHover); }
 
-    /* ALL CAPS always for ALL inputs (table + modal) */
+    /* ALL CAPS always for ALL inputs */
     input, textarea, select { text-transform: uppercase; }
 
     .cell{
@@ -341,7 +335,7 @@
       text-align: center;
       font-size: 11px;
       padding: 2px 0;
-      text-transform: uppercase; /* force caps */
+      text-transform: uppercase;
     }
     .cell::placeholder{ color: rgba(160,180,220,.55); font-weight: 800; }
     body.light .cell::placeholder{ color: rgba(90,110,150,.55); }
@@ -353,9 +347,6 @@
     .cell:focus{
       background: rgba(217,187,98,.10);
       border-radius: 8px;
-    }
-    body.light .cell:focus{
-      background: rgba(11,42,85,.08);
     }
 
     /* ===== Totals rows colors ===== */
@@ -373,26 +364,17 @@
       font-size: 10px;
     }
 
-    /* TOTAL FROM THIS PAGE & PREVIOUS PAGE: yellow on dark, dark-blue on light */
     .total-this td, .total-prev td{
       color: var(--totals-accent);
       background: rgba(217,187,98,.06);
     }
-    body.light .total-this td, body.light .total-prev td{
-      background: rgba(11,42,85,.06);
-    }
     .total-this .tfLabel, .total-prev .tfLabel{ color: var(--totals-accent); }
 
-    /* GRAND row stays highlighted too */
     .grand td{
       border-top: 2px solid rgba(217,187,98,.25);
       background: rgba(217,187,98,.10);
       color: var(--totals-accent);
       font-size: 12px;
-    }
-    body.light .grand td{
-      border-top: 2px solid rgba(11,42,85,.25);
-      background: rgba(11,42,85,.10);
     }
 
     .del{
@@ -420,7 +402,6 @@
     }
     .overlay.open{ display:flex; }
 
-    /* iPad FIX: modal becomes a column, body scrolls */
     .modal{
       width: min(980px, 100%);
       border-radius: 18px;
@@ -473,7 +454,7 @@
       font-size: 12px;
       line-height: 1.35;
       background: rgba(255,255,255,.03);
-      text-transform: none; /* hint can be normal */
+      text-transform: none;
     }
     .hint b{ text-transform: uppercase; }
 
@@ -517,7 +498,6 @@
     }
     .preview img{ width:100%; display:block; }
 
-    /* Sticky action buttons always visible */
     .modal-actions{
       grid-column: 1 / -1;
       position: sticky;
@@ -540,7 +520,7 @@
     @media (max-width: 980px){
       .prev-grid{ grid-template-columns: 1fr 1fr; }
       .modal-b{ grid-template-columns: 1fr; }
-      table{ min-width: 1250px; }
+      table{ min-width: 1550px; }
     }
 
     @media print{
@@ -555,7 +535,6 @@
 <body>
   <div class="app">
 
-    <!-- Service worker -->
     <script>
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
@@ -644,11 +623,24 @@
               <th>DUAL</th>
               <th>FI</th>
 
+              <!-- ADDED -->
+              <th colspan="3">FSTD SESSION</th>
+
               <th>DAY<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
               <th>NIGHT<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
 
+              <!-- ADDED -->
               <th>REMARKS & ENDORSEMENTS</th>
               <th></th>
+            </tr>
+
+            <tr>
+              <th colspan="18"></th>
+              <th>DATE<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">DD.MM.YY</span></th>
+              <th>TYPE</th>
+              <th>TOTAL<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">SESSION</span></th>
+              <th colspan="2"></th>
+              <th colspan="2"></th>
             </tr>
           </thead>
 
@@ -669,12 +661,8 @@
 
       <div class="modal-b">
         <div class="scanRow">
-          <button class="scanBtn" onclick="document.getElementById('photoInput').click()">
-            📷 PHOTO SCAN
-          </button>
-          <button class="scanBtn pdf" onclick="document.getElementById('pdfInput').click()">
-            📄 PDF IMPORT
-          </button>
+          <button class="scanBtn" onclick="document.getElementById('photoInput').click()">📷 PHOTO SCAN</button>
+          <button class="scanBtn pdf" onclick="document.getElementById('pdfInput').click()">📄 PDF IMPORT</button>
           <input class="fileHidden" type="file" id="photoInput" accept="image/*">
           <input class="fileHidden" type="file" id="pdfInput" accept="application/pdf">
         </div>
@@ -715,10 +703,15 @@
         <div class="field"><label>Dual (H:MM)</label><input id="f_dual" placeholder=""></div>
         <div class="field"><label>FI (H:MM)</label><input id="f_fi" placeholder=""></div>
 
+        <!-- ADDED -->
+        <div class="field"><label>FSTD Date (DD.MM.YY)</label><input id="f_sim_date" placeholder="29.11.25"></div>
+        <div class="field"><label>FSTD Type</label><input id="f_sim_type" placeholder="B789"></div>
+        <div class="field"><label>FSTD Total (H:MM)</label><input id="f_sim_total" placeholder="3:00"></div>
+
         <div class="field"><label>LDG Day</label><input id="f_ldg_day" type="number" min="0" placeholder="0"></div>
         <div class="field"><label>LDG Night</label><input id="f_ldg_night" type="number" min="0" placeholder="0"></div>
 
-        <div class="field" style="grid-column:1/-1"><label>Remarks</label><input id="f_rem" placeholder=""></div>
+        <div class="field" style="grid-column:1/-1"><label>Remarks & Endorsements</label><input id="f_rem" placeholder=""></div>
 
         <div class="modal-actions">
           <button class="btn" onclick="closeModal()">Cancel</button>
@@ -732,12 +725,12 @@
 /* =========================
    Storage + State
    ========================= */
-const KEY_FLIGHTS = "mara_book_flights_v3";
-const KEY_PREV    = "mara_book_prev_v3";
-const KEY_THEME   = "mara_book_theme_v3";
-const KEY_ATTACH  = "mara_book_attach_v3";
+const KEY_FLIGHTS = "mara_book_flights_v4";
+const KEY_PREV    = "mara_book_prev_v4";
+const KEY_THEME   = "mara_book_theme_v4";
+const KEY_ATTACH  = "mara_book_attach_v4";
 const ROWS_PER_PAGE = 10;
-const KEY_PAGE = "mara_page_v2";
+const KEY_PAGE = "mara_page_v3";
 
 let currentPage = parseInt(localStorage.getItem(KEY_PAGE) || "1", 10);
 if (!currentPage || currentPage < 1) currentPage = 1;
@@ -868,7 +861,7 @@ function normalizeHM(v){
   return up(s);
 }
 
-const TIME_KEYS = ["se","me","mp","total","night","ifr","pic","cop","dual","fi"];
+const TIME_KEYS = ["se","me","mp","total","night","ifr","pic","cop","dual","fi","simTotal"];
 
 /* =========================
    Previous totals UI
@@ -895,16 +888,17 @@ function renderPrev(){
     d.innerHTML = '<label>'+label+'</label><input id="prev_'+k+'" value="'+escapeHTML(prev[k]??"")+'" placeholder="'+(k.includes("ldg")?'0':'H:MM')+'">';
     grid.appendChild(d);
     const el = d.querySelector("input");
+
     el.addEventListener("input", ()=>{
-      // ALL CAPS for inputs always
       if(!k.includes("ldg")) el.value = up(el.value);
       prev[k] = el.value;
       saveJSON(KEY_PREV, prev);
       render();
     });
+
     el.addEventListener("blur", ()=>{
       if(!k.includes("ldg")) el.value = up(el.value);
-      if(k==="mp_me" || k==="total" || k==="night" || k==="ifr" || k==="pic" || k==="cop" || k==="dual" || k==="fi"){
+      if(["mp_me","total","night","ifr","pic","cop","dual","fi"].includes(k)){
         const norm = normalizeHM(el.value);
         if(norm) el.value = norm;
         if(isTimeHM(el.value)) _lastTimeValue = el.value;
@@ -936,6 +930,7 @@ function ensureRowObject(i){
     acType:"", acReg:"", name:"SELF",
     se:"", me:"", mp:"", total:"",
     night:"", ifr:"", pic:"", cop:"", dual:"", fi:"",
+    simDate:"", simType:"", simTotal:"",
     ldgDay:"0", ldgNight:"0",
     remarks:""
   };
@@ -945,17 +940,13 @@ function onCell(i, key, value){
   ensureRowObject(i);
   const f = flights[i];
 
-  // ALL CAPS always for all inputs (including remarks)
   f[key] = up(value);
 
-  // keep digits/colon as-is for times; still uppercase doesn't harm
   if(key==="out" || key==="in"){
-    // OUT/IN is HHMM, keep only digits if user typed letters by mistake
     const digits = String(f[key]||"").replace(/[^0-9]/g,"");
     if(digits) f[key] = digits;
   }
 
-  // auto block time when OUT/IN change
   if(key==="out" || key==="in"){
     const block = calcBlock(f.out, f.in);
     if(block!==null){
@@ -973,17 +964,14 @@ function onCell(i, key, value){
 }
 
 function onCellBlur(i, key, el){
-  // ALL CAPS always
   el.value = up(el.value);
 
-  // normalize time columns to H:MM
   if(TIME_KEYS.includes(key)){
     const norm = normalizeHM(el.value);
     if(norm) el.value = norm;
     if(isTimeHM(el.value)) _lastTimeValue = el.value;
   }
 
-  // normalize OUT/IN digits only
   if(key==="out" || key==="in"){
     const digits = String(el.value||"").replace(/[^0-9]/g,"");
     el.value = digits;
@@ -995,7 +983,6 @@ function onCellBlur(i, key, el){
 function onCellKeyDown(e, i, key, el){
   if(e.key !== "Tab") return;
 
-  // If current is empty and last time exists, copy it into this time field
   const empty = !String(el.value||"").trim();
   if(empty && TIME_KEYS.includes(key) && isTimeHM(_lastTimeValue)){
     el.value = _lastTimeValue;
@@ -1067,6 +1054,11 @@ function render(){
       '<td>'+cellInput(idx,"cop", v("cop"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"dual", v("dual"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"fi", v("fi"), "H:MM", "")+'</td>'+
+
+      '<td>'+cellInput(idx,"simDate", v("simDate"), "DD.MM.YY", "small")+'</td>'+
+      '<td>'+cellInput(idx,"simType", v("simType"), "TYPE", "small upper")+'</td>'+
+      '<td>'+cellInput(idx,"simTotal", v("simTotal"), "H:MM", "small")+'</td>'+
+
       '<td>'+cellInput(idx,"ldgDay", v("ldgDay"), "0", "small")+'</td>'+
       '<td>'+cellInput(idx,"ldgNight", v("ldgNight"), "0", "small")+'</td>'+
       '<td>'+cellInput(idx,"remarks", v("remarks"), "", "")+'</td>'+
@@ -1126,9 +1118,11 @@ function render(){
       '<td>'+(sum.cop?fmtMins(sum.cop):"—")+'</td>'+
       '<td>'+(sum.dual?fmtMins(sum.dual):"—")+'</td>'+
       '<td>'+(sum.fi?fmtMins(sum.fi):"—")+'</td>'+
+      '<td colspan="3">—</td>'+
       '<td>'+(sum.ldgDay||"—")+'</td>'+
       '<td>'+(sum.ldgNight||"—")+'</td>'+
-      '<td colspan="2"></td>'+
+      '<td></td>'+
+      '<td></td>'+
     '</tr>'+
     '<tr class="total-prev">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM PREVIOUS PAGE</td>'+
@@ -1141,9 +1135,11 @@ function render(){
       '<td>'+(p.cop?fmtMins(p.cop):"—")+'</td>'+
       '<td>'+(p.dual?fmtMins(p.dual):"—")+'</td>'+
       '<td>'+(p.fi?fmtMins(p.fi):"—")+'</td>'+
+      '<td colspan="3">—</td>'+
       '<td>'+(p.ldgDay||"—")+'</td>'+
       '<td>'+(p.ldgNight||"—")+'</td>'+
-      '<td colspan="2"></td>'+
+      '<td></td>'+
+      '<td></td>'+
     '</tr>'+
     '<tr class="grand">'+
       '<td class="tfLabel" colspan="8">■ TOTAL TO DATE</td>'+
@@ -1157,9 +1153,11 @@ function render(){
       '<td>'+(grand.cop?fmtMins(grand.cop):"—")+'</td>'+
       '<td>'+(grand.dual?fmtMins(grand.dual):"—")+'</td>'+
       '<td>'+(grand.fi?fmtMins(grand.fi):"—")+'</td>'+
+      '<td colspan="3">—</td>'+
       '<td>'+(grand.ldgDay||"—")+'</td>'+
       '<td>'+(grand.ldgNight||"—")+'</td>'+
-      '<td colspan="2"></td>'+
+      '<td></td>'+
+      '<td></td>'+
     '</tr>';
 
   saveJSON(KEY_FLIGHTS, flights);
@@ -1218,6 +1216,9 @@ function saveFromModal(){
     cop: normalizeHM(get("f_cop")),
     dual: normalizeHM(get("f_dual")),
     fi: normalizeHM(get("f_fi")),
+    simDate: get("f_sim_date"),
+    simType: get("f_sim_type"),
+    simTotal: normalizeHM(get("f_sim_total")),
     ldgDay: String(document.getElementById("f_ldg_day").value || "0").trim(),
     ldgNight: String(document.getElementById("f_ldg_night").value || "0").trim(),
     remarks: get("f_rem")
@@ -1250,6 +1251,7 @@ function saveFromModal(){
   }
 
   if(isTimeHM(row.total)) _lastTimeValue = row.total;
+  if(isTimeHM(row.simTotal)) _lastTimeValue = row.simTotal;
 
   saveJSON(KEY_FLIGHTS, flights);
   closeModal();
@@ -1416,6 +1418,9 @@ function seedFromPhoto(){
       cop: "",
       dual: "",
       fi: "",
+      simDate: "",
+      simType: "",
+      simTotal: "",
       ldgDay: String(x.ldgDay),
       ldgNight: String(x.ldgNight),
       remarks: ""
