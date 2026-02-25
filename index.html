@@ -17,524 +17,363 @@
 
   <style>
     /* =========================
-       Mara Logbook UI (Dark/Light)
-       - 10 ROWS PER PAGE
-       - ALL CAPS ALWAYS
-       - TAB on empty time field copies previous (H:MM)
-       - Adds: FSTD SESSION (DATE/TYPE/TOTAL) + REMARKS
-       - LIGHT uses SAME YELLOW FONTS as DARK
+       Mara Logbook UI
+       - 10 rows per page
+       - ALL CAPS always
+       - TAB on empty time copies previous H:MM
+       - Totals rows highlighted (yellow both themes)
+       - Added FSTD totals in footer rows
+       - Renamed previous totals panel to "TOTAL"
+       - KPI labels bold/visible
+       - Moved LDG columns after TOTAL FLIGHT (behind total flight)
        ========================= */
 
     :root{
-      /* DARK (default) */
-      --bg: #071326;
-      --panel: rgba(10, 24, 50, 0.72);
-      --panel2: rgba(10, 24, 50, 0.55);
-      --ink: #eaf0ff;
-      --muted: rgba(234,240,255,.70);
-      --line: rgba(234,240,255,.10);
-      --line2: rgba(234,240,255,.06);
+      /* DARK default */
+      --bg:#071326;
+      --panel:rgba(10,24,50,.72);
+      --panel2:rgba(10,24,50,.55);
+      --ink:#eaf0ff;
+      --muted:rgba(234,240,255,.72);
+      --line:rgba(234,240,255,.10);
+      --line2:rgba(234,240,255,.06);
 
-      --gold: #d9bb62;
+      --gold:#d9bb62;
       --gold2:#caa84a;
 
-      --danger: #d06b5f;
-      --ok: #59c18d;
+      --danger:#d06b5f;
+      --ok:#59c18d;
 
-      --thead: rgba(8, 20, 45, .72);
-      --row: rgba(255,255,255,.02);
-      --rowAlt: rgba(255,255,255,.035);
-      --rowHover: rgba(217,187,98,.08);
+      --thead:rgba(8,20,45,.72);
+      --row:rgba(255,255,255,.02);
+      --rowAlt:rgba(255,255,255,.035);
+      --rowHover:rgba(217,187,98,.08);
 
-      --shadow: 0 24px 80px rgba(0,0,0,.35);
-
-      /* Totals highlight color for footer rows */
-      --totals-accent: var(--gold);
+      --shadow:0 24px 80px rgba(0,0,0,.35);
+      --totals-accent:var(--gold);
     }
 
     body.light{
       /* LIGHT */
-      --bg: #eef3ff;
-      --panel: rgba(255,255,255,.92);
-      --panel2: rgba(255,255,255,.82);
-      --ink: #0b1a33;
-      --muted: rgba(11,26,51,.65);
-      --line: rgba(11,26,51,.12);
-      --line2: rgba(11,26,51,.06);
+      --bg:#eef3ff;
+      --panel:rgba(255,255,255,.92);
+      --panel2:rgba(255,255,255,.82);
+      --ink:#0b1a33;
+      --muted:rgba(11,26,51,.70);
+      --line:rgba(11,26,51,.12);
+      --line2:rgba(11,26,51,.06);
 
-      /* SAME YELLOW as DARK */
-      --gold: #d9bb62;
+      /* same yellow */
+      --gold:#d9bb62;
       --gold2:#caa84a;
-      --totals-accent: var(--gold);
+      --totals-accent:var(--gold);
 
-      --thead: rgba(234,241,255,.95);
-      --row: rgba(255,255,255,.98);
-      --rowAlt: rgba(245,248,255,.98);
-      --rowHover: rgba(217,187,98,.10);
+      --thead:rgba(234,241,255,.95);
+      --row:rgba(255,255,255,.98);
+      --rowAlt:rgba(245,248,255,.98);
+      --rowHover:rgba(217,187,98,.10);
 
-      --shadow: 0 24px 70px rgba(10,25,60,.12);
+      --shadow:0 24px 70px rgba(10,25,60,.12);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      background: radial-gradient(1200px 600px at 20% 15%, rgba(14,60,120,.25), transparent 55%),
-                  radial-gradient(1000px 550px at 80% 20%, rgba(30,80,170,.18), transparent 58%),
-                  radial-gradient(900px 700px at 60% 80%, rgba(0,0,0,.35), transparent 60%),
-                  var(--bg);
-      color: var(--ink);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+      background:
+        radial-gradient(1200px 600px at 20% 15%, rgba(14,60,120,.25), transparent 55%),
+        radial-gradient(1000px 550px at 80% 20%, rgba(30,80,170,.18), transparent 58%),
+        radial-gradient(900px 700px at 60% 80%, rgba(0,0,0,.35), transparent 60%),
+        var(--bg);
+      color:var(--ink);
       overflow-x:hidden;
     }
 
-    .app{
-      max-width: 1500px;
-      margin: 0 auto;
-      padding: 18px 14px 30px;
-    }
+    .app{max-width:1500px;margin:0 auto;padding:18px 14px 30px}
 
-    /* ===== Header ===== */
+    /* ===== header ===== */
     .topbar{
-      position: sticky;
-      top: 10px;
-      z-index: 50;
-
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-
+      position:sticky;top:10px;z-index:50;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
       border:1px solid var(--line2);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-      backdrop-filter: blur(12px);
-
-      border-radius: 16px;
-      padding: 14px 14px;
-      box-shadow: var(--shadow);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.01));
+      backdrop-filter:blur(12px);
+      border-radius:16px;
+      padding:14px 14px;
+      box-shadow:var(--shadow);
     }
 
-    .brand{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width: 250px;
-    }
+    .brand{display:flex;flex-direction:column;gap:4px;min-width:260px}
     .brand .title{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight: 900;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      font-size: 20px;
+      display:flex;align-items:center;gap:10px;
+      font-weight:1000;
+      letter-spacing:4px;
+      text-transform:uppercase;
+      white-space:nowrap;
+      font-size:20px;
     }
     .brand .sub{
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-size:11px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:1000; /* more visible */
     }
 
     .kpis{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:14px;
-      flex:1;
-      flex-wrap:wrap;
-      min-width: 320px;
+      display:flex;align-items:center;justify-content:center;
+      gap:14px;flex:1;flex-wrap:wrap;min-width:320px;
     }
     .kpi{
-      min-width: 150px;
-      text-align:center;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.04);
+      min-width:150px;text-align:center;
+      padding:10px 12px;border-radius:14px;
+      background:rgba(255,255,255,.04);
       border:1px solid var(--line2);
     }
     .kpi .v{
-      font-weight: 900;
-      font-size: 22px;
-      letter-spacing: 1px;
-      color: var(--gold);
-      font-variant-numeric: tabular-nums;
+      font-weight:1000;
+      font-size:22px;
+      letter-spacing:1px;
+      color:var(--gold);
+      font-variant-numeric:tabular-nums;
     }
     .kpi .l{
-      margin-top: 3px;
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
+      margin-top:3px;
+      font-size:11px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:1000; /* more visible */
     }
 
-    .actions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
+    .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
     .btn{
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.03);
-      color: var(--ink);
-      padding: 10px 14px;
-      font-weight: 900;
-      font-size: 12px;
-      letter-spacing: 1px;
+      border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--ink);
+      padding:10px 14px;
+      font-weight:1000;
+      font-size:12px;
+      letter-spacing:1px;
       cursor:pointer;
-      transition: transform .12s, background .12s, border-color .12s, opacity .12s;
-      white-space: nowrap;
-      text-transform: uppercase;
+      transition:transform .12s, background .12s, border-color .12s, opacity .12s;
+      white-space:nowrap;
+      text-transform:uppercase;
     }
-    .btn:hover{ transform: translateY(-1px); border-color: rgba(217,187,98,.35); }
-    .btn:active{ transform: translateY(0px); opacity: .9; }
+    .btn:hover{transform:translateY(-1px);border-color:rgba(217,187,98,.35)}
+    .btn:active{transform:translateY(0);opacity:.9}
+    .btn.gold{background:linear-gradient(180deg,var(--gold),var(--gold2));color:#1b1b1b;border-color:transparent}
+    .btn.danger{background:rgba(208,107,95,.12);border-color:rgba(208,107,95,.30);color:var(--danger)}
+    .btn.ok{background:rgba(89,193,141,.12);border-color:rgba(89,193,141,.30);color:var(--ok)}
+    .btn.small{padding:9px 12px;min-width:44px}
 
-    .btn.gold{
-      background: linear-gradient(180deg, var(--gold), var(--gold2));
-      color: #1b1b1b;
-      border-color: rgba(0,0,0,0);
-    }
-
-    .btn.danger{
-      background: rgba(208,107,95,.12);
-      border-color: rgba(208,107,95,.30);
-      color: var(--danger);
-    }
-
-    .btn.ok{
-      background: rgba(89,193,141,.12);
-      border-color: rgba(89,193,141,.30);
-      color: var(--ok);
-    }
-
-    .btn.small{
-      padding: 9px 12px;
-      font-size: 12px;
-      min-width: 44px;
-    }
-
-    /* ===== Panels ===== */
+    /* ===== panels ===== */
     .panel{
-      margin-top: 14px;
-      border-radius: 16px;
-      overflow: hidden;
+      margin-top:14px;border-radius:16px;overflow:hidden;
       border:1px solid var(--line2);
-      background: var(--panel);
-      box-shadow: var(--shadow);
+      background:var(--panel);
+      box-shadow:var(--shadow);
     }
     .panel-h{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 12px 14px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px;gap:10px;flex-wrap:wrap;
+      background:linear-gradient(180deg, rgba(255,255,255,.06), transparent);
       border-bottom:1px solid var(--line2);
-      gap:10px;
-      flex-wrap:wrap;
     }
     .panel-h .left{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
+      display:flex;align-items:center;gap:10px;
+      font-weight:1000;letter-spacing:3px;text-transform:uppercase;
+      font-size:12px;color:var(--muted);white-space:nowrap;
     }
-    .panel-h .right{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    .panel-h .right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 
-    /* ===== Previous totals fields ===== */
+    /* ===== prev totals fields ===== */
     .prev-grid{
-      padding: 14px;
+      padding:14px;
       display:grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns:repeat(5, minmax(0,1fr));
       gap:12px;
     }
-    .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
+    .field{display:flex;flex-direction:column;gap:6px}
     .field label{
-      font-size: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 900;
+      font-size:10px;letter-spacing:3px;text-transform:uppercase;
+      color:var(--muted);font-weight:1000;
     }
     .field input{
-      height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--line2);
-      background: rgba(255,255,255,.02);
-      color: var(--ink);
-      padding: 10px 12px;
-      font-weight: 900;
-      outline: none;
-      font-variant-numeric: tabular-nums;
-      text-transform: uppercase;
+      height:40px;border-radius:12px;border:1px solid var(--line2);
+      background:rgba(255,255,255,.02);
+      color:var(--ink);
+      padding:10px 12px;
+      font-weight:1000;
+      outline:none;
+      font-variant-numeric:tabular-nums;
+      text-transform:uppercase;
     }
-    body.light .field input{ background: rgba(255,255,255,.92); }
-    .field input:focus{ border-color: rgba(217,187,98,.45); }
+    body.light .field input{background:rgba(255,255,255,.92)}
+    .field input:focus{border-color:rgba(217,187,98,.45)}
 
-    /* ===== Table ===== */
-    .table-wrap{
-      width:100%;
-      overflow:auto;
-      background: var(--panel2);
-    }
+    /* ===== table ===== */
+    .table-wrap{width:100%;overflow:auto;background:var(--panel2)}
     table{
-      width: 100%;
-      min-width: 1750px;
-      border-collapse: collapse;
-      font-size: 11px;
-      font-variant-numeric: tabular-nums;
+      width:100%;
+      min-width:1880px;
+      border-collapse:collapse;
+      font-size:11px;
+      font-variant-numeric:tabular-nums;
     }
-    th, td{
-      border: 1px solid var(--line2);
-      padding: 8px 6px;
+    th,td{
+      border:1px solid var(--line2);
+      padding:8px 6px;
       text-align:center;
-      vertical-align: middle;
-      white-space: nowrap;
+      vertical-align:middle;
+      white-space:nowrap;
     }
     thead th{
-      background: var(--thead);
-      color: var(--muted);
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 10px;
+      background:var(--thead);
+      color:var(--muted);
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:2px;
+      font-size:10px;
     }
-    tbody tr{ background: var(--row); }
-    tbody tr:nth-child(even){ background: var(--rowAlt); }
-    tbody tr:hover{ background: var(--rowHover); }
+    tbody tr{background:var(--row)}
+    tbody tr:nth-child(even){background:var(--rowAlt)}
+    tbody tr:hover{background:var(--rowHover)}
 
-    /* ALL CAPS always for ALL inputs */
-    input, textarea, select { text-transform: uppercase; }
+    /* ALL CAPS */
+    input, textarea, select{ text-transform:uppercase; }
 
     .cell{
-      width: 100%;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--ink);
-      font-weight: 900;
-      text-align: center;
-      font-size: 11px;
-      padding: 2px 0;
-      text-transform: uppercase;
+      width:100%;border:none;outline:none;
+      background:transparent;color:var(--ink);
+      font-weight:1000;
+      text-align:center;
+      font-size:11px;
+      padding:2px 0;
+      text-transform:uppercase;
     }
-    .cell::placeholder{ color: rgba(160,180,220,.55); font-weight: 800; }
-    body.light .cell::placeholder{ color: rgba(90,110,150,.55); }
+    .cell::placeholder{color:rgba(160,180,220,.55);font-weight:900}
+    body.light .cell::placeholder{color:rgba(90,110,150,.55)}
+    .upper{letter-spacing:1px}
+    .time{letter-spacing:1px}
+    .small{font-size:10px}
+    .cell:focus{background:rgba(217,187,98,.10);border-radius:8px}
 
-    .upper{ text-transform: uppercase; letter-spacing: 1px; }
-    .time{ letter-spacing: 1px; }
-    .small{ font-size: 10px; }
-
-    .cell:focus{
-      background: rgba(217,187,98,.10);
-      border-radius: 8px;
-    }
-
-    /* ===== Totals rows colors ===== */
-    tfoot td{
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-weight: 900;
-    }
+    /* totals rows */
+    tfoot td{background:rgba(255,255,255,.03);color:var(--muted);font-weight:1000}
     .tfLabel{
-      text-align:left;
-      padding-left: 10px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-size: 10px;
+      text-align:left;padding-left:10px;
+      letter-spacing:3px;text-transform:uppercase;
+      color:var(--muted);font-size:10px;
     }
-
     .total-this td, .total-prev td{
-      color: var(--totals-accent);
-      background: rgba(217,187,98,.06);
+      color:var(--totals-accent);
+      background:rgba(217,187,98,.06);
     }
-    .total-this .tfLabel, .total-prev .tfLabel{ color: var(--totals-accent); }
-
+    .total-this .tfLabel, .total-prev .tfLabel{color:var(--totals-accent)}
     .grand td{
-      border-top: 2px solid rgba(217,187,98,.25);
-      background: rgba(217,187,98,.10);
-      color: var(--totals-accent);
-      font-size: 12px;
+      border-top:2px solid rgba(217,187,98,.25);
+      background:rgba(217,187,98,.10);
+      color:var(--totals-accent);
+      font-size:12px;
     }
 
     .del{
-      border-radius: 10px;
-      border: 1px solid rgba(208,107,95,.35);
-      background: rgba(208,107,95,.12);
-      color: var(--danger);
-      cursor:pointer;
-      font-weight: 900;
-      padding: 6px 10px;
-      text-transform: uppercase;
+      border-radius:10px;border:1px solid rgba(208,107,95,.35);
+      background:rgba(208,107,95,.12);
+      color:var(--danger);
+      cursor:pointer;font-weight:1000;
+      padding:6px 10px;text-transform:uppercase;
     }
 
-    /* ===== Modal ===== */
+    /* ===== modal ===== */
     .overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 14px;
-      z-index: 100;
-      backdrop-filter: blur(12px);
+      position:fixed;inset:0;background:rgba(0,0,0,.45);
+      display:none;align-items:center;justify-content:center;
+      padding:14px;z-index:100;backdrop-filter:blur(12px);
     }
-    .overlay.open{ display:flex; }
-
+    .overlay.open{display:flex}
     .modal{
-      width: min(980px, 100%);
-      border-radius: 18px;
-      overflow:hidden;
-      border: 1px solid var(--line2);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-
-      max-height: calc(100vh - 28px);
-      display: flex;
-      flex-direction: column;
+      width:min(980px,100%);
+      border-radius:18px;overflow:hidden;
+      border:1px solid var(--line2);
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      max-height:calc(100vh - 28px);
+      display:flex;flex-direction:column;
     }
     .modal-h{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line2);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
-      flex: 0 0 auto;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:14px 16px;border-bottom:1px solid var(--line2);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex:0 0 auto;
     }
     .modal-h .t{
-      font-weight: 900;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      display:flex;
-      align-items:center;
-      gap:10px;
+      font-weight:1000;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+      display:flex;align-items:center;gap:10px;
     }
-
     .modal-b{
-      padding: 14px 16px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      flex: 1 1 auto;
+      padding:14px 16px;
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;
+      overflow:auto;-webkit-overflow-scrolling:touch;
+      flex:1 1 auto;
     }
-
-    .hint{
-      grid-column: 1 / -1;
-      border: 1px dashed var(--line);
-      border-radius: 14px;
-      padding: 10px 12px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-      background: rgba(255,255,255,.03);
-      text-transform: none;
-    }
-    .hint b{ text-transform: uppercase; }
-
-    .scanRow{
-      grid-column: 1 / -1;
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-    }
+    .scanRow{grid-column:1/-1;display:flex;gap:12px;flex-wrap:wrap}
     .scanBtn{
-      flex:1;
-      min-width: 280px;
-      border-radius: 16px;
-      padding: 14px 14px;
-      border: 2px dashed rgba(118,169,255,.35);
-      background: rgba(118,169,255,.08);
-      color: var(--ink);
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-transform: uppercase;
+      flex:1;min-width:280px;
+      border-radius:16px;padding:14px 14px;
+      border:2px dashed rgba(118,169,255,.35);
+      background:rgba(118,169,255,.08);
+      color:var(--ink);
+      font-weight:1000;letter-spacing:2px;text-transform:uppercase;
       cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
+      display:flex;align-items:center;justify-content:center;gap:10px;
     }
-    .scanBtn.pdf{
-      border-color: rgba(89,193,141,.35);
-      background: rgba(89,193,141,.08);
+    .scanBtn.pdf{border-color:rgba(89,193,141,.35);background:rgba(89,193,141,.08)}
+    .fileHidden{display:none}
+    .hint{
+      grid-column:1/-1;border:1px dashed var(--line);
+      border-radius:14px;padding:10px 12px;
+      color:var(--muted);font-size:12px;line-height:1.35;
+      background:rgba(255,255,255,.03);
+      text-transform:none;
     }
-    .fileHidden{ display:none; }
-
+    .hint b{text-transform:uppercase}
     .preview{
-      grid-column: 1 / -1;
-      border-radius: 14px;
-      overflow:hidden;
-      border: 1px solid var(--line2);
-      background: rgba(0,0,0,.08);
-      display:none;
-      max-height: 240px;
+      grid-column:1/-1;border-radius:14px;overflow:hidden;
+      border:1px solid var(--line2);
+      background:rgba(0,0,0,.08);
+      display:none;max-height:240px;
     }
-    .preview img{ width:100%; display:block; }
-
+    .preview img{width:100%;display:block}
     .modal-actions{
-      grid-column: 1 / -1;
-      position: sticky;
-      bottom: 0;
-      display:flex;
-      justify-content:flex-end;
-      gap:10px;
-      flex-wrap:wrap;
-      padding: 12px 0 6px;
-      margin-top: 6px;
-      background: linear-gradient(180deg, transparent, rgba(0,0,0,.18));
+      grid-column:1/-1;
+      position:sticky;bottom:0;
+      display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;
+      padding:12px 0 6px;margin-top:6px;
+      background:linear-gradient(180deg, transparent, rgba(0,0,0,.18));
     }
-    body.light .modal-actions{
-      background: linear-gradient(180deg, transparent, rgba(255,255,255,.92));
-    }
+    body.light .modal-actions{background:linear-gradient(180deg, transparent, rgba(255,255,255,.92))}
 
-    @media (max-width: 1100px){
-      .kpis{ display:none; }
-    }
-    @media (max-width: 980px){
-      .prev-grid{ grid-template-columns: 1fr 1fr; }
-      .modal-b{ grid-template-columns: 1fr; }
-      table{ min-width: 1550px; }
+    @media (max-width:1100px){.kpis{display:none}}
+    @media (max-width:980px){
+      .prev-grid{grid-template-columns:1fr 1fr}
+      .modal-b{grid-template-columns:1fr}
+      table{min-width:1700px}
     }
 
     @media print{
-      .topbar, .panel-h .right, .del, .overlay { display:none !important; }
-      body{ background:#fff; }
-      .panel{ box-shadow:none; background:#fff; }
-      @page{ size: A4 landscape; margin: 10mm; }
+      .topbar,.panel-h .right,.del,.overlay{display:none !important}
+      body{background:#fff}
+      .panel{box-shadow:none;background:#fff}
+      @page{size:A4 landscape;margin:10mm}
     }
   </style>
 </head>
 
 <body>
   <div class="app">
-
     <script>
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
@@ -545,14 +384,14 @@
     <div class="topbar">
       <div class="brand">
         <div class="title">✈ MARA PILOT LOGBOOK</div>
-        <div class="sub">Flight Record System</div>
+        <div class="sub">FLIGHT RECORD SYSTEM</div>
       </div>
 
       <div class="kpis">
-        <div class="kpi"><div class="v" id="k_total">0:00</div><div class="l">Total Time</div></div>
-        <div class="kpi"><div class="v" id="k_pic">0:00</div><div class="l">PIC Time</div></div>
-        <div class="kpi"><div class="v" id="k_night">0:00</div><div class="l">Night</div></div>
-        <div class="kpi"><div class="v" id="k_ifr">0:00</div><div class="l">IFR Actual</div></div>
+        <div class="kpi"><div class="v" id="k_total">0:00</div><div class="l">TOTAL TIME</div></div>
+        <div class="kpi"><div class="v" id="k_pic">0:00</div><div class="l">PIC TIME</div></div>
+        <div class="kpi"><div class="v" id="k_night">0:00</div><div class="l">NIGHT</div></div>
+        <div class="kpi"><div class="v" id="k_ifr">0:00</div><div class="l">IFR ACTUAL</div></div>
       </div>
 
       <div class="actions">
@@ -565,10 +404,10 @@
       </div>
     </div>
 
-    <!-- TOTAL FROM PREVIOUS PAGE -->
+    <!-- TOTAL (previous page totals) -->
     <div class="panel">
       <div class="panel-h">
-        <div class="left">📋 TOTAL FROM PREVIOUS PAGE</div>
+        <div class="left">📋 TOTAL</div>
         <div class="right">
           <button class="btn ok" onclick="seedFromPhoto()">IMPORT (PHOTO PAGE)</button>
           <button class="btn" onclick="exportBackup()">BACKUP</button>
@@ -586,8 +425,8 @@
       <div class="panel-h">
         <div class="left">📘 LOGBOOK PAGE (10 ROWS)</div>
         <div class="right">
-          <span style="color:var(--muted);font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;">
-            Auto-saved locally • Works offline
+          <span style="color:var(--muted);font-weight:1000;font-size:12px;letter-spacing:1px;text-transform:uppercase;">
+            AUTO-SAVED LOCALLY • WORKS OFFLINE
           </span>
         </div>
       </div>
@@ -615,6 +454,10 @@
 
               <th>TOTAL<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">FLIGHT</span></th>
 
+              <!-- MOVED: LDG columns behind TOTAL FLIGHT -->
+              <th>DAY<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
+              <th>NIGHT<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
+
               <th>NIGHT</th>
               <th>IFR<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">ACTUAL</span></th>
 
@@ -623,23 +466,17 @@
               <th>DUAL</th>
               <th>FI</th>
 
-              <!-- ADDED -->
               <th colspan="3">FSTD SESSION</th>
 
-              <th>DAY<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
-              <th>NIGHT<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
-
-              <!-- ADDED -->
               <th>REMARKS & ENDORSEMENTS</th>
               <th></th>
             </tr>
 
             <tr>
-              <th colspan="18"></th>
+              <th colspan="20"></th>
               <th>DATE<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">DD.MM.YY</span></th>
               <th>TYPE</th>
               <th>TOTAL<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">SESSION</span></th>
-              <th colspan="2"></th>
               <th colspan="2"></th>
             </tr>
           </thead>
@@ -674,7 +511,7 @@
         </div>
 
         <div class="preview" id="photoPrev"></div>
-        <div id="pdfName" style="grid-column:1/-1;color:var(--muted);font-weight:900;letter-spacing:1px;"></div>
+        <div id="pdfName" style="grid-column:1/-1;color:var(--muted);font-weight:1000;letter-spacing:1px;"></div>
 
         <div class="field"><label>Date (DD.MM.YY)</label><input id="f_date" placeholder="23.11"></div>
         <div class="field"><label>Name(s) PIC</label><input id="f_name" placeholder="SELF"></div>
@@ -703,7 +540,6 @@
         <div class="field"><label>Dual (H:MM)</label><input id="f_dual" placeholder=""></div>
         <div class="field"><label>FI (H:MM)</label><input id="f_fi" placeholder=""></div>
 
-        <!-- ADDED -->
         <div class="field"><label>FSTD Date (DD.MM.YY)</label><input id="f_sim_date" placeholder="29.11.25"></div>
         <div class="field"><label>FSTD Type</label><input id="f_sim_type" placeholder="B789"></div>
         <div class="field"><label>FSTD Total (H:MM)</label><input id="f_sim_total" placeholder="3:00"></div>
@@ -725,12 +561,12 @@
 /* =========================
    Storage + State
    ========================= */
-const KEY_FLIGHTS = "mara_book_flights_v4";
-const KEY_PREV    = "mara_book_prev_v4";
-const KEY_THEME   = "mara_book_theme_v4";
-const KEY_ATTACH  = "mara_book_attach_v4";
+const KEY_FLIGHTS = "mara_book_flights_v5";
+const KEY_PREV    = "mara_book_prev_v5";
+const KEY_THEME   = "mara_book_theme_v5";
+const KEY_ATTACH  = "mara_book_attach_v5";
+const KEY_PAGE    = "mara_page_v4";
 const ROWS_PER_PAGE = 10;
-const KEY_PAGE = "mara_page_v3";
 
 let currentPage = parseInt(localStorage.getItem(KEY_PAGE) || "1", 10);
 if (!currentPage || currentPage < 1) currentPage = 1;
@@ -746,7 +582,10 @@ let prev = loadJSON(KEY_PREV, {
   dual: "0:00",
   fi: "",
   ldg_day: "0",
-  ldg_night: "0"
+  ldg_night: "0",
+
+  /* NEW: FSTD TOTAL from previous page */
+  fstd: "0:00"
 });
 let attach = loadJSON(KEY_ATTACH, { photoDataUrl: "", pdfName: "" });
 
@@ -791,7 +630,7 @@ function toggleTheme(){
 /* =========================
    Time utils + TAB copy previous time (H:MM)
    ========================= */
-let _lastTimeValue = ""; // remembers last typed H:MM
+let _lastTimeValue = "";
 
 function toMins(hhmm){
   if(!hhmm) return 0;
@@ -862,9 +701,10 @@ function normalizeHM(v){
 }
 
 const TIME_KEYS = ["se","me","mp","total","night","ifr","pic","cop","dual","fi","simTotal"];
+const PREV_TIME_KEYS = ["mp_me","total","night","ifr","pic","cop","dual","fi","fstd"];
 
 /* =========================
-   Previous totals UI
+   Previous totals UI (includes FSTD total)
    ========================= */
 const prevFields = [
   ["mp_me","MULTI-PILOT ME"],
@@ -875,6 +715,7 @@ const prevFields = [
   ["cop","CO-PILOT"],
   ["dual","DUAL"],
   ["fi","FI"],
+  ["fstd","FSTD TOTAL"],         // NEW
   ["ldg_day","DAY LDG"],
   ["ldg_night","NIGHT LDG"]
 ];
@@ -882,11 +723,14 @@ const prevFields = [
 function renderPrev(){
   const grid = document.getElementById("prevGrid");
   grid.innerHTML = "";
+
   prevFields.forEach(([k,label])=>{
     const d = document.createElement("div");
     d.className="field";
-    d.innerHTML = '<label>'+label+'</label><input id="prev_'+k+'" value="'+escapeHTML(prev[k]??"")+'" placeholder="'+(k.includes("ldg")?'0':'H:MM')+'">';
+    const ph = k.includes("ldg") ? "0" : "H:MM";
+    d.innerHTML = '<label>'+label+'</label><input id="prev_'+k+'" value="'+escapeHTML(prev[k]??"")+'" placeholder="'+ph+'">';
     grid.appendChild(d);
+
     const el = d.querySelector("input");
 
     el.addEventListener("input", ()=>{
@@ -898,7 +742,7 @@ function renderPrev(){
 
     el.addEventListener("blur", ()=>{
       if(!k.includes("ldg")) el.value = up(el.value);
-      if(["mp_me","total","night","ifr","pic","cop","dual","fi"].includes(k)){
+      if(PREV_TIME_KEYS.includes(k)){
         const norm = normalizeHM(el.value);
         if(norm) el.value = norm;
         if(isTimeHM(el.value)) _lastTimeValue = el.value;
@@ -916,10 +760,10 @@ function renderPrev(){
 function cellInput(idx, key, val, ph, cls){
   const c = ("cell " + (cls||"")).trim();
   const v = (val===undefined || val===null) ? "" : String(val);
-  return '<input class="'+c+'" value="'+escapeHTML(v)+'" placeholder="'+escapeHTML(ph||"")+'" ' +
-    'oninput="onCell('+idx+', \''+key+'\', this.value)" ' +
-    'onblur="onCellBlur('+idx+', \''+key+'\', this)" ' +
-    'onkeydown="onCellKeyDown(event, '+idx+', \''+key+'\', this)">' ;
+  return '<input class="'+c+'" value="'+escapeHTML(v)+'" placeholder="'+escapeHTML(ph||"")+'" '+
+    'oninput="onCell('+idx+', \''+key+'\', this.value)" '+
+    'onblur="onCellBlur('+idx+', \''+key+'\', this)" '+
+    'onkeydown="onCellKeyDown(event, '+idx+', \''+key+'\', this)">';
 }
 
 function ensureRowObject(i){
@@ -929,9 +773,9 @@ function ensureRowObject(i){
     date:"", depPlace:"", out:"", arrPlace:"", in:"",
     acType:"", acReg:"", name:"SELF",
     se:"", me:"", mp:"", total:"",
+    ldgDay:"0", ldgNight:"0",          // moved earlier in table, still stored same
     night:"", ifr:"", pic:"", cop:"", dual:"", fi:"",
     simDate:"", simType:"", simTotal:"",
-    ldgDay:"0", ldgNight:"0",
     remarks:""
   };
 }
@@ -982,7 +826,6 @@ function onCellBlur(i, key, el){
 
 function onCellKeyDown(e, i, key, el){
   if(e.key !== "Tab") return;
-
   const empty = !String(el.value||"").trim();
   if(empty && TIME_KEYS.includes(key) && isTimeHM(_lastTimeValue)){
     el.value = _lastTimeValue;
@@ -999,6 +842,7 @@ function clearRow(index){
 
 /* =========================
    Render (10 rows per page)
+   + Adds FSTD totals in footer rows
    ========================= */
 function render(){
   const tbody = document.getElementById("tbody");
@@ -1012,7 +856,12 @@ function render(){
     saveJSON(KEY_FLIGHTS, flights);
   }
 
-  let sum = { se:0, me:0, mp:0, total:0, night:0, ifr:0, pic:0, cop:0, dual:0, fi:0, ldgDay:0, ldgNight:0 };
+  let sum = {
+    se:0, me:0, mp:0, total:0,
+    ldgDay:0, ldgNight:0,
+    night:0, ifr:0, pic:0, cop:0, dual:0, fi:0,
+    fstd:0 // NEW
+  };
 
   for(let r=0; r<ROWS_PER_PAGE; r++){
     const idx = start + r;
@@ -1023,18 +872,24 @@ function render(){
       sum.me += toMins(f.me);
       sum.mp += toMins(f.mp);
       sum.total += toMins(f.total);
+
+      sum.ldgDay += (parseInt(f.ldgDay,10)||0);
+      sum.ldgNight += (parseInt(f.ldgNight,10)||0);
+
       sum.night += toMins(f.night);
       sum.ifr += toMins(f.ifr);
       sum.pic += toMins(f.pic);
       sum.cop += toMins(f.cop);
       sum.dual += toMins(f.dual);
       sum.fi += toMins(f.fi);
-      sum.ldgDay += (parseInt(f.ldgDay,10)||0);
-      sum.ldgNight += (parseInt(f.ldgNight,10)||0);
+
+      sum.fstd += toMins(f.simTotal); // NEW
     }
 
     const v = (key) => (f && f[key]) ? f[key] : "";
     const tr = document.createElement("tr");
+
+    /* ORDER: ... TOTAL FLIGHT, DAY LDG, NIGHT LDG, then NIGHT/IFR ... */
     tr.innerHTML =
       '<td>'+cellInput(idx,"date", v("date"), "DD.MM.YY", "")+'</td>'+
       '<td>'+cellInput(idx,"depPlace", v("depPlace"), "ICAO", "upper")+'</td>'+
@@ -1048,8 +903,13 @@ function render(){
       '<td>'+cellInput(idx,"me", v("me"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"mp", v("mp"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"total", v("total"), "H:MM", "")+'</td>'+
+
+      '<td>'+cellInput(idx,"ldgDay", v("ldgDay"), "0", "small")+'</td>'+
+      '<td>'+cellInput(idx,"ldgNight", v("ldgNight"), "0", "small")+'</td>'+
+
       '<td>'+cellInput(idx,"night", v("night"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"ifr", v("ifr"), "H:MM", "")+'</td>'+
+
       '<td>'+cellInput(idx,"pic", v("pic"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"cop", v("cop"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"dual", v("dual"), "H:MM", "")+'</td>'+
@@ -1059,13 +919,13 @@ function render(){
       '<td>'+cellInput(idx,"simType", v("simType"), "TYPE", "small upper")+'</td>'+
       '<td>'+cellInput(idx,"simTotal", v("simTotal"), "H:MM", "small")+'</td>'+
 
-      '<td>'+cellInput(idx,"ldgDay", v("ldgDay"), "0", "small")+'</td>'+
-      '<td>'+cellInput(idx,"ldgNight", v("ldgNight"), "0", "small")+'</td>'+
       '<td>'+cellInput(idx,"remarks", v("remarks"), "", "")+'</td>'+
       '<td>'+(f ? '<button class="del" onclick="clearRow('+idx+')">×</button>' : '')+'</td>';
+
     tbody.appendChild(tr);
   }
 
+  /* previous totals */
   const p = {
     mp: toMins(prev.mp_me),
     total: toMins(prev.total),
@@ -1077,6 +937,7 @@ function render(){
     fi: toMins(prev.fi),
     ldgDay: parseInt(prev.ldg_day,10)||0,
     ldgNight: parseInt(prev.ldg_night,10)||0,
+    fstd: toMins(prev.fstd),
     se: 0,
     me: toMins(prev.mp_me)
   };
@@ -1093,7 +954,8 @@ function render(){
     dual: sum.dual + p.dual,
     fi: sum.fi + p.fi,
     ldgDay: sum.ldgDay + p.ldgDay,
-    ldgNight: sum.ldgNight + p.ldgNight
+    ldgNight: sum.ldgNight + p.ldgNight,
+    fstd: sum.fstd + p.fstd
   };
 
   document.getElementById("k_total").textContent = fmtMins(grand.total);
@@ -1105,6 +967,13 @@ function render(){
   if(currentPage > maxPage) currentPage = maxPage;
   document.getElementById("pageLabel").textContent = "PAGE " + currentPage + " / " + maxPage;
 
+  /* Footer rows:
+     Add FSTD TOTAL column values in totals rows (same as flight hours)
+     We place FSTD totals under the FSTD TOTAL SESSION column position.
+     Column positions in tbody:
+       ... simDate (col 21), simType (22), simTotal (23), remarks (24), del (25)
+     So in footer we include colspans and put FSTD totals in the simTotal slot.
+  */
   document.getElementById("tfoot").innerHTML =
     '<tr class="total-this">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM THIS PAGE</td>'+
@@ -1112,50 +981,55 @@ function render(){
       '<td>'+(sum.me?fmtMins(sum.me):"—")+'</td>'+
       '<td>'+(sum.mp?fmtMins(sum.mp):"—")+'</td>'+
       '<td>'+(sum.total?fmtMins(sum.total):"—")+'</td>'+
+      '<td>'+(sum.ldgDay||"—")+'</td>'+
+      '<td>'+(sum.ldgNight||"—")+'</td>'+
       '<td>'+(sum.night?fmtMins(sum.night):"—")+'</td>'+
       '<td>'+(sum.ifr?fmtMins(sum.ifr):"—")+'</td>'+
       '<td>'+(sum.pic?fmtMins(sum.pic):"—")+'</td>'+
       '<td>'+(sum.cop?fmtMins(sum.cop):"—")+'</td>'+
       '<td>'+(sum.dual?fmtMins(sum.dual):"—")+'</td>'+
       '<td>'+(sum.fi?fmtMins(sum.fi):"—")+'</td>'+
-      '<td colspan="3">—</td>'+
-      '<td>'+(sum.ldgDay||"—")+'</td>'+
-      '<td>'+(sum.ldgNight||"—")+'</td>'+
+      '<td colspan="2">—</td>'+
+      '<td>'+(sum.fstd?fmtMins(sum.fstd):"—")+'</td>'+
       '<td></td>'+
       '<td></td>'+
     '</tr>'+
+
     '<tr class="total-prev">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM PREVIOUS PAGE</td>'+
       '<td>—</td><td>—</td>'+
       '<td>'+(p.mp?fmtMins(p.mp):"—")+'</td>'+
       '<td>'+(p.total?fmtMins(p.total):"—")+'</td>'+
+      '<td>'+(p.ldgDay||"—")+'</td>'+
+      '<td>'+(p.ldgNight||"—")+'</td>'+
       '<td>'+(p.night?fmtMins(p.night):"—")+'</td>'+
       '<td>'+(p.ifr?fmtMins(p.ifr):"—")+'</td>'+
       '<td>'+(p.pic?fmtMins(p.pic):"—")+'</td>'+
       '<td>'+(p.cop?fmtMins(p.cop):"—")+'</td>'+
       '<td>'+(p.dual?fmtMins(p.dual):"—")+'</td>'+
       '<td>'+(p.fi?fmtMins(p.fi):"—")+'</td>'+
-      '<td colspan="3">—</td>'+
-      '<td>'+(p.ldgDay||"—")+'</td>'+
-      '<td>'+(p.ldgNight||"—")+'</td>'+
+      '<td colspan="2">—</td>'+
+      '<td>'+(p.fstd?fmtMins(p.fstd):"—")+'</td>'+
       '<td></td>'+
       '<td></td>'+
     '</tr>'+
+
     '<tr class="grand">'+
       '<td class="tfLabel" colspan="8">■ TOTAL TO DATE</td>'+
       '<td>'+(grand.se?fmtMins(grand.se):"—")+'</td>'+
       '<td>'+(grand.me?fmtMins(grand.me):"—")+'</td>'+
       '<td>'+(grand.mp?fmtMins(grand.mp):"—")+'</td>'+
       '<td>'+(grand.total?fmtMins(grand.total):"—")+'</td>'+
+      '<td>'+(grand.ldgDay||"—")+'</td>'+
+      '<td>'+(grand.ldgNight||"—")+'</td>'+
       '<td>'+(grand.night?fmtMins(grand.night):"—")+'</td>'+
       '<td>'+(grand.ifr?fmtMins(grand.ifr):"—")+'</td>'+
       '<td>'+(grand.pic?fmtMins(grand.pic):"—")+'</td>'+
       '<td>'+(grand.cop?fmtMins(grand.cop):"—")+'</td>'+
       '<td>'+(grand.dual?fmtMins(grand.dual):"—")+'</td>'+
       '<td>'+(grand.fi?fmtMins(grand.fi):"—")+'</td>'+
-      '<td colspan="3">—</td>'+
-      '<td>'+(grand.ldgDay||"—")+'</td>'+
-      '<td>'+(grand.ldgNight||"—")+'</td>'+
+      '<td colspan="2">—</td>'+
+      '<td>'+(grand.fstd?fmtMins(grand.fstd):"—")+'</td>'+
       '<td></td>'+
       '<td></td>'+
     '</tr>';
@@ -1206,30 +1080,34 @@ function saveFromModal(){
     acType: get("f_type"),
     acReg: get("f_reg"),
     name: get("f_name") || "SELF",
+
     se: se,
     me: me,
     mp: mp,
     total: total,
+
+    ldgDay: String(document.getElementById("f_ldg_day").value || "0").trim(),
+    ldgNight: String(document.getElementById("f_ldg_night").value || "0").trim(),
+
     night: normalizeHM(get("f_night")),
     ifr: ifr,
+
     pic: pic,
     cop: normalizeHM(get("f_cop")),
     dual: normalizeHM(get("f_dual")),
     fi: normalizeHM(get("f_fi")),
+
     simDate: get("f_sim_date"),
     simType: get("f_sim_type"),
     simTotal: normalizeHM(get("f_sim_total")),
-    ldgDay: String(document.getElementById("f_ldg_day").value || "0").trim(),
-    ldgNight: String(document.getElementById("f_ldg_night").value || "0").trim(),
+
     remarks: get("f_rem")
   };
 
   const start = (currentPage - 1) * ROWS_PER_PAGE;
   const end = start + ROWS_PER_PAGE;
 
-  if (flights.length < end) {
-    for (let i = flights.length; i < end; i++) flights.push(null);
-  }
+  if (flights.length < end) for (let i = flights.length; i < end; i++) flights.push(null);
 
   let placed = false;
   for(let i=start; i<end; i++){
@@ -1244,9 +1122,7 @@ function saveFromModal(){
     setPage(currentPage + 1);
     const newStart = (currentPage - 1) * ROWS_PER_PAGE;
     const newEnd = newStart + ROWS_PER_PAGE;
-    if (flights.length < newEnd) {
-      for (let i = flights.length; i < newEnd; i++) flights.push(null);
-    }
+    if (flights.length < newEnd) for (let i = flights.length; i < newEnd; i++) flights.push(null);
     flights[newStart] = row;
   }
 
@@ -1264,7 +1140,6 @@ function saveFromModal(){
 document.getElementById("photoInput").addEventListener("change", (e)=>{
   const file = e.target.files && e.target.files[0];
   if(!file) return;
-
   const r = new FileReader();
   r.onload = ()=>{
     attach.photoDataUrl = String(r.result || "");
@@ -1273,7 +1148,6 @@ document.getElementById("photoInput").addEventListener("change", (e)=>{
   };
   r.readAsDataURL(file);
 });
-
 document.getElementById("pdfInput").addEventListener("change", (e)=>{
   const file = e.target.files && e.target.files[0];
   if(!file) return;
@@ -1281,7 +1155,6 @@ document.getElementById("pdfInput").addEventListener("change", (e)=>{
   saveJSON(KEY_ATTACH, attach);
   renderAttachPreview();
 });
-
 function renderAttachPreview(){
   const p = document.getElementById("photoPrev");
   if(attach.photoDataUrl){
@@ -1299,8 +1172,8 @@ function renderAttachPreview(){
    ========================= */
 function exportBackup(){
   const payload = {
-    flights: flights,
-    prev: prev,
+    flights,
+    prev,
     theme: document.body.classList.contains("light") ? "light" : "dark",
     page: currentPage
   };
@@ -1342,7 +1215,7 @@ function importBackup(){
   input.click();
 }
 function resetAll(){
-  if(!confirm("RESET ALL DATA (FLIGHTS + PREVIOUS TOTALS + ATTACHMENTS)?")) return;
+  if(!confirm("RESET ALL DATA (FLIGHTS + TOTALS + ATTACHMENTS)?")) return;
 
   localStorage.removeItem(KEY_FLIGHTS);
   localStorage.removeItem(KEY_PREV);
@@ -1351,16 +1224,10 @@ function resetAll(){
 
   flights = [];
   prev = {
-    mp_me: "0:00",
-    total: "0:00",
-    night: "0:00",
-    ifr: "0:00",
-    pic: "0:00",
-    cop: "0:00",
-    dual: "0:00",
-    fi: "",
-    ldg_day: "0",
-    ldg_night: "0"
+    mp_me:"0:00", total:"0:00", night:"0:00", ifr:"0:00",
+    pic:"0:00", cop:"0:00", dual:"0:00", fi:"",
+    fstd:"0:00",
+    ldg_day:"0", ldg_night:"0"
   };
   attach = { photoDataUrl:"", pdfName:"" };
   currentPage = 1;
@@ -1375,7 +1242,7 @@ function resetAll(){
 }
 
 /* =========================
-   Import sample 10 flights (your photo page)
+   Import sample 10 flights (photo page)
    ========================= */
 function seedFromPhoto(){
   if(!confirm("IMPORT THE 10 FLIGHTS FROM YOUR LOGBOOK PHOTO PAGE INTO PAGE 1?")) return;
@@ -1412,6 +1279,8 @@ function seedFromPhoto(){
       me: up(x.me),
       mp: up(x.mp),
       total: up(x.total),
+      ldgDay: String(x.ldgDay),
+      ldgNight: String(x.ldgNight),
       night: up(x.night),
       ifr: up(x.ifr),
       pic: up(x.pic),
@@ -1421,8 +1290,6 @@ function seedFromPhoto(){
       simDate: "",
       simType: "",
       simTotal: "",
-      ldgDay: String(x.ldgDay),
-      ldgNight: String(x.ldgNight),
       remarks: ""
     };
   }
@@ -1440,7 +1307,7 @@ function seedFromPhoto(){
    ========================= */
 function escapeHTML(s){
   return String(s||"").replace(/[&<>"']/g, function(m){
-    return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]);
+    return ({"&":"&amp;","<":"&lt;"," >":"&gt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m] || m);
   });
 }
 
