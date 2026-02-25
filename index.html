@@ -23,9 +23,9 @@
        - TAB on empty time copies previous H:MM
        - Totals rows highlighted (yellow both themes)
        - Added FSTD totals in footer rows
-       - Renamed previous totals panel to "TOTAL"
-       - KPI labels bold/visible
-       - Moved LDG columns after TOTAL FLIGHT (behind total flight)
+       - Header: IFR (renamed from IFR ACTUAL)
+       - Panel title: TOTAL FROM PREVIOUS PAGE
+       - REMOVED: SE, ME, MULTI PILOT columns and previous totals fields
        ========================= */
 
     :root{
@@ -118,7 +118,7 @@
       letter-spacing:3px;
       text-transform:uppercase;
       color:var(--muted);
-      font-weight:1000; /* more visible */
+      font-weight:1000;
     }
 
     .kpis{
@@ -144,7 +144,7 @@
       letter-spacing:3px;
       text-transform:uppercase;
       color:var(--muted);
-      font-weight:1000; /* more visible */
+      font-weight:1000;
     }
 
     .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
@@ -217,7 +217,7 @@
     .table-wrap{width:100%;overflow:auto;background:var(--panel2)}
     table{
       width:100%;
-      min-width:1880px;
+      min-width:1720px;
       border-collapse:collapse;
       font-size:11px;
       font-variant-numeric:tabular-nums;
@@ -360,7 +360,7 @@
     @media (max-width:980px){
       .prev-grid{grid-template-columns:1fr 1fr}
       .modal-b{grid-template-columns:1fr}
-      table{min-width:1700px}
+      table{min-width:1600px}
     }
 
     @media print{
@@ -391,7 +391,7 @@
         <div class="kpi"><div class="v" id="k_total">0:00</div><div class="l">TOTAL TIME</div></div>
         <div class="kpi"><div class="v" id="k_pic">0:00</div><div class="l">PIC TIME</div></div>
         <div class="kpi"><div class="v" id="k_night">0:00</div><div class="l">NIGHT</div></div>
-        <div class="kpi"><div class="v" id="k_ifr">0:00</div><div class="l">IFR ACTUAL</div></div>
+        <div class="kpi"><div class="v" id="k_ifr">0:00</div><div class="l">IFR</div></div>
       </div>
 
       <div class="actions">
@@ -404,10 +404,10 @@
       </div>
     </div>
 
-    <!-- TOTAL (previous page totals) -->
+    <!-- TOTAL FROM PREVIOUS PAGE -->
     <div class="panel">
       <div class="panel-h">
-        <div class="left">📋 TOTAL</div>
+        <div class="left">📋 TOTAL FROM PREVIOUS PAGE</div>
         <div class="right">
           <button class="btn ok" onclick="seedFromPhoto()">IMPORT (PHOTO PAGE)</button>
           <button class="btn" onclick="exportBackup()">BACKUP</button>
@@ -448,18 +448,14 @@
 
               <th>NAME(S)<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">PIC</span></th>
 
-              <th>SE</th>
-              <th>ME</th>
-              <th>MULTI<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">PILOT</span></th>
-
               <th>TOTAL<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">FLIGHT</span></th>
 
-              <!-- MOVED: LDG columns behind TOTAL FLIGHT -->
+              <!-- LDG columns behind TOTAL FLIGHT -->
               <th>DAY<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
               <th>NIGHT<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
 
               <th>NIGHT</th>
-              <th>IFR<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">ACTUAL</span></th>
+              <th>IFR</th>
 
               <th>PIC</th>
               <th>CO-PILOT</th>
@@ -473,7 +469,7 @@
             </tr>
 
             <tr>
-              <th colspan="20"></th>
+              <th colspan="17"></th>
               <th>DATE<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">DD.MM.YY</span></th>
               <th>TYPE</th>
               <th>TOTAL<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">SESSION</span></th>
@@ -525,27 +521,23 @@
         <div class="field"><label>Aircraft Type</label><input id="f_type" placeholder="B781"></div>
         <div class="field"><label>Registration</label><input id="f_reg" placeholder="B-17812"></div>
 
-        <div class="field"><label>SE (H:MM)</label><input id="f_se" placeholder=""></div>
-        <div class="field"><label>ME (H:MM)</label><input id="f_me" placeholder=""></div>
-
-        <div class="field"><label>Multi Pilot (H:MM)</label><input id="f_mp" placeholder="AUTO"></div>
         <div class="field"><label>Total Flight (H:MM)</label><input id="f_total" placeholder="AUTO"></div>
-
         <div class="field"><label>Night (H:MM)</label><input id="f_night" placeholder=""></div>
-        <div class="field"><label>IFR Actual (H:MM)</label><input id="f_ifr" placeholder="AUTO"></div>
 
+        <div class="field"><label>IFR (H:MM)</label><input id="f_ifr" placeholder="AUTO"></div>
         <div class="field"><label>PIC (H:MM)</label><input id="f_pic" placeholder="AUTO"></div>
+
         <div class="field"><label>Co-Pilot (H:MM)</label><input id="f_cop" placeholder=""></div>
-
         <div class="field"><label>Dual (H:MM)</label><input id="f_dual" placeholder=""></div>
-        <div class="field"><label>FI (H:MM)</label><input id="f_fi" placeholder=""></div>
 
+        <div class="field"><label>FI (H:MM)</label><input id="f_fi" placeholder=""></div>
+        <div class="field"><label>LDG Day</label><input id="f_ldg_day" type="number" min="0" placeholder="0"></div>
+
+        <div class="field"><label>LDG Night</label><input id="f_ldg_night" type="number" min="0" placeholder="0"></div>
         <div class="field"><label>FSTD Date (DD.MM.YY)</label><input id="f_sim_date" placeholder="29.11.25"></div>
+
         <div class="field"><label>FSTD Type</label><input id="f_sim_type" placeholder="B789"></div>
         <div class="field"><label>FSTD Total (H:MM)</label><input id="f_sim_total" placeholder="3:00"></div>
-
-        <div class="field"><label>LDG Day</label><input id="f_ldg_day" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>LDG Night</label><input id="f_ldg_night" type="number" min="0" placeholder="0"></div>
 
         <div class="field" style="grid-column:1/-1"><label>Remarks & Endorsements</label><input id="f_rem" placeholder=""></div>
 
@@ -561,11 +553,11 @@
 /* =========================
    Storage + State
    ========================= */
-const KEY_FLIGHTS = "mara_book_flights_v5";
-const KEY_PREV    = "mara_book_prev_v5";
-const KEY_THEME   = "mara_book_theme_v5";
-const KEY_ATTACH  = "mara_book_attach_v5";
-const KEY_PAGE    = "mara_page_v4";
+const KEY_FLIGHTS = "mara_book_flights_v6";
+const KEY_PREV    = "mara_book_prev_v6";
+const KEY_THEME   = "mara_book_theme_v6";
+const KEY_ATTACH  = "mara_book_attach_v6";
+const KEY_PAGE    = "mara_page_v5";
 const ROWS_PER_PAGE = 10;
 
 let currentPage = parseInt(localStorage.getItem(KEY_PAGE) || "1", 10);
@@ -573,7 +565,6 @@ if (!currentPage || currentPage < 1) currentPage = 1;
 
 let flights = loadJSON(KEY_FLIGHTS, []);
 let prev = loadJSON(KEY_PREV, {
-  mp_me: "0:00",
   total: "0:00",
   night: "0:00",
   ifr: "0:00",
@@ -583,8 +574,6 @@ let prev = loadJSON(KEY_PREV, {
   fi: "",
   ldg_day: "0",
   ldg_night: "0",
-
-  /* NEW: FSTD TOTAL from previous page */
   fstd: "0:00"
 });
 let attach = loadJSON(KEY_ATTACH, { photoDataUrl: "", pdfName: "" });
@@ -700,22 +689,21 @@ function normalizeHM(v){
   return up(s);
 }
 
-const TIME_KEYS = ["se","me","mp","total","night","ifr","pic","cop","dual","fi","simTotal"];
-const PREV_TIME_KEYS = ["mp_me","total","night","ifr","pic","cop","dual","fi","fstd"];
+const TIME_KEYS = ["total","night","ifr","pic","cop","dual","fi","simTotal"];
+const PREV_TIME_KEYS = ["total","night","ifr","pic","cop","dual","fi","fstd"];
 
 /* =========================
    Previous totals UI (includes FSTD total)
    ========================= */
 const prevFields = [
-  ["mp_me","MULTI-PILOT ME"],
   ["total","TOTAL FLIGHT"],
   ["night","NIGHT"],
-  ["ifr","IFR ACTUAL"],
+  ["ifr","IFR"],
   ["pic","PIC"],
   ["cop","CO-PILOT"],
   ["dual","DUAL"],
   ["fi","FI"],
-  ["fstd","FSTD TOTAL"],         // NEW
+  ["fstd","FSTD TOTAL"],
   ["ldg_day","DAY LDG"],
   ["ldg_night","NIGHT LDG"]
 ];
@@ -772,8 +760,8 @@ function ensureRowObject(i){
     id: Date.now() + Math.floor(Math.random()*100000),
     date:"", depPlace:"", out:"", arrPlace:"", in:"",
     acType:"", acReg:"", name:"SELF",
-    se:"", me:"", mp:"", total:"",
-    ldgDay:"0", ldgNight:"0",          // moved earlier in table, still stored same
+    total:"",
+    ldgDay:"0", ldgNight:"0",
     night:"", ifr:"", pic:"", cop:"", dual:"", fi:"",
     simDate:"", simType:"", simTotal:"",
     remarks:""
@@ -796,8 +784,6 @@ function onCell(i, key, value){
     if(block!==null){
       const blockStr = fmtMins(block);
       if(!f.total) f.total = blockStr;
-      if(!f.mp) f.mp = blockStr;
-      if(!f.me && !f.se) f.me = blockStr;
       if(!f.ifr) f.ifr = blockStr;
       if(!f.pic) f.pic = blockStr;
     }
@@ -857,10 +843,10 @@ function render(){
   }
 
   let sum = {
-    se:0, me:0, mp:0, total:0,
+    total:0,
     ldgDay:0, ldgNight:0,
     night:0, ifr:0, pic:0, cop:0, dual:0, fi:0,
-    fstd:0 // NEW
+    fstd:0
   };
 
   for(let r=0; r<ROWS_PER_PAGE; r++){
@@ -868,28 +854,21 @@ function render(){
     const f = flights[idx];
 
     if(f){
-      sum.se += toMins(f.se);
-      sum.me += toMins(f.me);
-      sum.mp += toMins(f.mp);
       sum.total += toMins(f.total);
-
       sum.ldgDay += (parseInt(f.ldgDay,10)||0);
       sum.ldgNight += (parseInt(f.ldgNight,10)||0);
-
       sum.night += toMins(f.night);
       sum.ifr += toMins(f.ifr);
       sum.pic += toMins(f.pic);
       sum.cop += toMins(f.cop);
       sum.dual += toMins(f.dual);
       sum.fi += toMins(f.fi);
-
-      sum.fstd += toMins(f.simTotal); // NEW
+      sum.fstd += toMins(f.simTotal);
     }
 
     const v = (key) => (f && f[key]) ? f[key] : "";
     const tr = document.createElement("tr");
 
-    /* ORDER: ... TOTAL FLIGHT, DAY LDG, NIGHT LDG, then NIGHT/IFR ... */
     tr.innerHTML =
       '<td>'+cellInput(idx,"date", v("date"), "DD.MM.YY", "")+'</td>'+
       '<td>'+cellInput(idx,"depPlace", v("depPlace"), "ICAO", "upper")+'</td>'+
@@ -899,11 +878,8 @@ function render(){
       '<td>'+cellInput(idx,"acType", v("acType"), "B781", "upper")+'</td>'+
       '<td>'+cellInput(idx,"acReg", v("acReg"), "B-17806", "upper")+'</td>'+
       '<td>'+cellInput(idx,"name", v("name"), "SELF", "upper")+'</td>'+
-      '<td>'+cellInput(idx,"se", v("se"), "H:MM", "")+'</td>'+
-      '<td>'+cellInput(idx,"me", v("me"), "H:MM", "")+'</td>'+
-      '<td>'+cellInput(idx,"mp", v("mp"), "H:MM", "")+'</td>'+
-      '<td>'+cellInput(idx,"total", v("total"), "H:MM", "")+'</td>'+
 
+      '<td>'+cellInput(idx,"total", v("total"), "H:MM", "")+'</td>'+
       '<td>'+cellInput(idx,"ldgDay", v("ldgDay"), "0", "small")+'</td>'+
       '<td>'+cellInput(idx,"ldgNight", v("ldgNight"), "0", "small")+'</td>'+
 
@@ -927,7 +903,6 @@ function render(){
 
   /* previous totals */
   const p = {
-    mp: toMins(prev.mp_me),
     total: toMins(prev.total),
     night: toMins(prev.night),
     ifr: toMins(prev.ifr),
@@ -937,15 +912,10 @@ function render(){
     fi: toMins(prev.fi),
     ldgDay: parseInt(prev.ldg_day,10)||0,
     ldgNight: parseInt(prev.ldg_night,10)||0,
-    fstd: toMins(prev.fstd),
-    se: 0,
-    me: toMins(prev.mp_me)
+    fstd: toMins(prev.fstd)
   };
 
   const grand = {
-    se: sum.se + p.se,
-    me: sum.me + p.me,
-    mp: sum.mp + p.mp,
     total: sum.total + p.total,
     night: sum.night + p.night,
     ifr: sum.ifr + p.ifr,
@@ -967,19 +937,10 @@ function render(){
   if(currentPage > maxPage) currentPage = maxPage;
   document.getElementById("pageLabel").textContent = "PAGE " + currentPage + " / " + maxPage;
 
-  /* Footer rows:
-     Add FSTD TOTAL column values in totals rows (same as flight hours)
-     We place FSTD totals under the FSTD TOTAL SESSION column position.
-     Column positions in tbody:
-       ... simDate (col 21), simType (22), simTotal (23), remarks (24), del (25)
-     So in footer we include colspans and put FSTD totals in the simTotal slot.
-  */
+  /* Footer rows */
   document.getElementById("tfoot").innerHTML =
     '<tr class="total-this">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM THIS PAGE</td>'+
-      '<td>'+(sum.se?fmtMins(sum.se):"—")+'</td>'+
-      '<td>'+(sum.me?fmtMins(sum.me):"—")+'</td>'+
-      '<td>'+(sum.mp?fmtMins(sum.mp):"—")+'</td>'+
       '<td>'+(sum.total?fmtMins(sum.total):"—")+'</td>'+
       '<td>'+(sum.ldgDay||"—")+'</td>'+
       '<td>'+(sum.ldgNight||"—")+'</td>'+
@@ -997,8 +958,6 @@ function render(){
 
     '<tr class="total-prev">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM PREVIOUS PAGE</td>'+
-      '<td>—</td><td>—</td>'+
-      '<td>'+(p.mp?fmtMins(p.mp):"—")+'</td>'+
       '<td>'+(p.total?fmtMins(p.total):"—")+'</td>'+
       '<td>'+(p.ldgDay||"—")+'</td>'+
       '<td>'+(p.ldgNight||"—")+'</td>'+
@@ -1016,9 +975,6 @@ function render(){
 
     '<tr class="grand">'+
       '<td class="tfLabel" colspan="8">■ TOTAL TO DATE</td>'+
-      '<td>'+(grand.se?fmtMins(grand.se):"—")+'</td>'+
-      '<td>'+(grand.me?fmtMins(grand.me):"—")+'</td>'+
-      '<td>'+(grand.mp?fmtMins(grand.mp):"—")+'</td>'+
       '<td>'+(grand.total?fmtMins(grand.total):"—")+'</td>'+
       '<td>'+(grand.ldgDay||"—")+'</td>'+
       '<td>'+(grand.ldgNight||"—")+'</td>'+
@@ -1040,16 +996,9 @@ function render(){
 /* =========================
    Modal behavior
    ========================= */
-function openModal(){
-  document.getElementById("overlay").classList.add("open");
-  renderAttachPreview();
-}
-function closeModal(){
-  document.getElementById("overlay").classList.remove("open");
-}
-function overlayClick(e){
-  if(e.target && e.target.id==="overlay") closeModal();
-}
+function openModal(){ document.getElementById("overlay").classList.add("open"); renderAttachPreview(); }
+function closeModal(){ document.getElementById("overlay").classList.remove("open"); }
+function overlayClick(e){ if(e.target && e.target.id==="overlay") closeModal(); }
 
 /* =========================
    Add flight (first empty row on current page, else next page)
@@ -1063,10 +1012,6 @@ function saveFromModal(){
   const blockStr = block!==null ? fmtMins(block) : "";
 
   const total = normalizeHM(get("f_total")) || blockStr;
-  const mp    = normalizeHM(get("f_mp")) || total;
-  const se    = normalizeHM(get("f_se"));
-  const me    = normalizeHM(get("f_me")) || (!se ? mp : "");
-
   const ifr   = normalizeHM(get("f_ifr")) || total;
   const pic   = normalizeHM(get("f_pic")) || total;
 
@@ -1081,11 +1026,7 @@ function saveFromModal(){
     acReg: get("f_reg"),
     name: get("f_name") || "SELF",
 
-    se: se,
-    me: me,
-    mp: mp,
     total: total,
-
     ldgDay: String(document.getElementById("f_ldg_day").value || "0").trim(),
     ldgNight: String(document.getElementById("f_ldg_night").value || "0").trim(),
 
@@ -1224,7 +1165,7 @@ function resetAll(){
 
   flights = [];
   prev = {
-    mp_me:"0:00", total:"0:00", night:"0:00", ifr:"0:00",
+    total:"0:00", night:"0:00", ifr:"0:00",
     pic:"0:00", cop:"0:00", dual:"0:00", fi:"",
     fstd:"0:00",
     ldg_day:"0", ldg_night:"0"
@@ -1248,16 +1189,16 @@ function seedFromPhoto(){
   if(!confirm("IMPORT THE 10 FLIGHTS FROM YOUR LOGBOOK PHOTO PAGE INTO PAGE 1?")) return;
 
   const seeded = [
-    {date:"23.11", depPlace:"RCTP", out:"1300", arrPlace:"VTBS", in:"1642", acType:"B781", acReg:"B-17812", name:"SELF", total:"3:42", mp:"3:42", me:"3:42", night:"3:42", ifr:"3:42", pic:"3:42", ldgDay:"0", ldgNight:"0"},
-    {date:"24.11", depPlace:"VTBS", out:"1957", arrPlace:"RCTP", in:"2329", acType:"B781", acReg:"B-17810", name:"SELF", total:"3:32", mp:"3:32", me:"3:32", night:"2:32", ifr:"3:32", pic:"3:32", ldgDay:"1", ldgNight:"0"},
-    {date:"26.11", depPlace:"RCTP", out:"0735", arrPlace:"RKSI", in:"0957", acType:"B789", acReg:"B-17883", name:"SELF", total:"2:22", mp:"2:22", me:"2:22", night:"2:22", ifr:"2:22", pic:"2:22", ldgDay:"0", ldgNight:"1"},
-    {date:"26.11", depPlace:"RKSI", out:"1114", arrPlace:"RCTP", in:"1415", acType:"B789", acReg:"B-17883", name:"SELF", total:"3:01", mp:"3:01", me:"3:01", night:"",    ifr:"3:01", pic:"3:01", ldgDay:"0", ldgNight:"0"},
-    {date:"01.12", depPlace:"RCTP", out:"0732", arrPlace:"RKSI", in:"0951", acType:"B781", acReg:"B-17815", name:"SELF", total:"2:19", mp:"2:19", me:"2:19", night:"1:19", ifr:"2:19", pic:"2:19", ldgDay:"0", ldgNight:"1"},
-    {date:"01.12", depPlace:"RKSI", out:"1059", arrPlace:"RCTP", in:"1338", acType:"B781", acReg:"B-17815", name:"SELF", total:"2:38", mp:"2:38", me:"2:38", night:"2:38", ifr:"2:38", pic:"2:38", ldgDay:"0", ldgNight:"0"},
-    {date:"04.12", depPlace:"VTBS", out:"1945", arrPlace:"LOWW", in:"0649", acType:"B781", acReg:"B-17883", name:"SELF", total:"11:25",mp:"11:25",me:"11:25",night:"7:00", ifr:"11:25",pic:"11:25",ldgDay:"1",ldgNight:"0"},
-    {date:"07.12", depPlace:"LOWW", out:"1657", arrPlace:"VTBS", in:"0308", acType:"B781", acReg:"B-17883", name:"SELF", total:"10:11",mp:"10:11",me:"10:11",night:"7:30", ifr:"10:11",pic:"10:11",ldgDay:"0",ldgNight:"0"},
-    {date:"12.12", depPlace:"WSSS", out:"1924", arrPlace:"RCTP", in:"2359", acType:"B789", acReg:"B-17887", name:"SELF", total:"4:25", mp:"4:25", me:"4:25", night:"9:25", ifr:"4:25", pic:"4:25", ldgDay:"0", ldgNight:"1"},
-    {date:"17.12", depPlace:"RCTP", out:"1153", arrPlace:"KDFW", in:"0112", acType:"B789", acReg:"B-17886", name:"SELF", total:"14:19",mp:"14:19",me:"14:19",night:"5:00", ifr:"14:19",pic:"14:19",ldgDay:"0",ldgNight:"0"}
+    {date:"23.11", depPlace:"RCTP", out:"1300", arrPlace:"VTBS", in:"1642", acType:"B781", acReg:"B-17812", name:"SELF", total:"3:42", night:"3:42", ifr:"3:42", pic:"3:42", ldgDay:"0", ldgNight:"0"},
+    {date:"24.11", depPlace:"VTBS", out:"1957", arrPlace:"RCTP", in:"2329", acType:"B781", acReg:"B-17810", name:"SELF", total:"3:32", night:"2:32", ifr:"3:32", pic:"3:32", ldgDay:"1", ldgNight:"0"},
+    {date:"26.11", depPlace:"RCTP", out:"0735", arrPlace:"RKSI", in:"0957", acType:"B789", acReg:"B-17883", name:"SELF", total:"2:22", night:"2:22", ifr:"2:22", pic:"2:22", ldgDay:"0", ldgNight:"1"},
+    {date:"26.11", depPlace:"RKSI", out:"1114", arrPlace:"RCTP", in:"1415", acType:"B789", acReg:"B-17883", name:"SELF", total:"3:01", night:"",    ifr:"3:01", pic:"3:01", ldgDay:"0", ldgNight:"0"},
+    {date:"01.12", depPlace:"RCTP", out:"0732", arrPlace:"RKSI", in:"0951", acType:"B781", acReg:"B-17815", name:"SELF", total:"2:19", night:"1:19", ifr:"2:19", pic:"2:19", ldgDay:"0", ldgNight:"1"},
+    {date:"01.12", depPlace:"RKSI", out:"1059", arrPlace:"RCTP", in:"1338", acType:"B781", acReg:"B-17815", name:"SELF", total:"2:38", night:"2:38", ifr:"2:38", pic:"2:38", ldgDay:"0", ldgNight:"0"},
+    {date:"04.12", depPlace:"VTBS", out:"1945", arrPlace:"LOWW", in:"0649", acType:"B781", acReg:"B-17883", name:"SELF", total:"11:25",night:"7:00", ifr:"11:25",pic:"11:25",ldgDay:"1",ldgNight:"0"},
+    {date:"07.12", depPlace:"LOWW", out:"1657", arrPlace:"VTBS", in:"0308", acType:"B781", acReg:"B-17883", name:"SELF", total:"10:11",night:"7:30", ifr:"10:11",pic:"10:11",ldgDay:"0",ldgNight:"0"},
+    {date:"12.12", depPlace:"WSSS", out:"1924", arrPlace:"RCTP", in:"2359", acType:"B789", acReg:"B-17887", name:"SELF", total:"4:25", night:"9:25", ifr:"4:25", pic:"4:25", ldgDay:"0", ldgNight:"1"},
+    {date:"17.12", depPlace:"RCTP", out:"1153", arrPlace:"KDFW", in:"0112", acType:"B789", acReg:"B-17886", name:"SELF", total:"14:19",night:"5:00", ifr:"14:19",pic:"14:19",ldgDay:"0",ldgNight:"0"}
   ];
 
   flights = [];
@@ -1275,21 +1216,22 @@ function seedFromPhoto(){
       acType: up(x.acType),
       acReg: up(x.acReg),
       name: up(x.name),
-      se: "",
-      me: up(x.me),
-      mp: up(x.mp),
+
       total: up(x.total),
       ldgDay: String(x.ldgDay),
       ldgNight: String(x.ldgNight),
+
       night: up(x.night),
       ifr: up(x.ifr),
       pic: up(x.pic),
       cop: "",
       dual: "",
       fi: "",
+
       simDate: "",
       simType: "",
       simTotal: "",
+
       remarks: ""
     };
   }
@@ -1307,7 +1249,7 @@ function seedFromPhoto(){
    ========================= */
 function escapeHTML(s){
   return String(s||"").replace(/[&<>"']/g, function(m){
-    return ({"&":"&amp;","<":"&lt;"," >":"&gt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m] || m);
+    return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m] || m);
   });
 }
 
