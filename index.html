@@ -13,13 +13,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Mara Logbook">
-  <!-- Use ONE apple-touch-icon (iOS picks best size it can) -->
   <link rel="apple-touch-icon" href="./icon-192.png">
 
   <style>
     /* =========================
        Mara Logbook UI (Dark/Light)
        Fixed 10 rows per page
+       iPad modal fix: scroll + sticky buttons
        ========================= */
 
     :root{
@@ -30,10 +30,6 @@
       --muted: rgba(234,240,255,.70);
       --line: rgba(234,240,255,.10);
       --line2: rgba(234,240,255,.06);
-
-      --blue1: #0b1a33;
-      --blue2: #0a254a;
-      --blue3: #0d2f5e;
 
       --gold: #d9bb62;
       --gold2:#caa84a;
@@ -57,10 +53,6 @@
       --muted: rgba(11,26,51,.65);
       --line: rgba(11,26,51,.12);
       --line2: rgba(11,26,51,.06);
-
-      --blue1: #ffffff;
-      --blue2: #f3f7ff;
-      --blue3: #eaf1ff;
 
       --thead: rgba(234,241,255,.9);
       --row: rgba(255,255,255,.9);
@@ -383,6 +375,7 @@
     }
     .overlay.open{ display:flex; }
 
+    /* iPad FIX: modal becomes a column, body scrolls */
     .modal{
       width: min(980px, 100%);
       border-radius: 18px;
@@ -390,6 +383,10 @@
       border: 1px solid var(--line2);
       background: var(--panel);
       box-shadow: var(--shadow);
+
+      max-height: calc(100vh - 28px);
+      display: flex;
+      flex-direction: column;
     }
     .modal-h{
       display:flex;
@@ -399,6 +396,7 @@
       padding: 14px 16px;
       border-bottom: 1px solid var(--line2);
       background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+      flex: 0 0 auto;
     }
     .modal-h .t{
       font-weight: 900;
@@ -409,12 +407,18 @@
       align-items:center;
       gap:10px;
     }
+
     .modal-b{
       padding: 14px 16px;
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
+
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1 1 auto;
     }
+
     .hint{
       grid-column: 1 / -1;
       border: 1px dashed var(--line);
@@ -466,13 +470,25 @@
     }
     .preview img{ width:100%; display:block; }
 
+    /* Sticky action buttons always visible */
     .modal-actions{
       grid-column: 1 / -1;
+
+      position: sticky;
+      bottom: 0;
+
       display:flex;
       justify-content:flex-end;
       gap:10px;
-      margin-top: 6px;
       flex-wrap:wrap;
+
+      padding: 12px 0 6px;
+      margin-top: 6px;
+
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.18));
+    }
+    body.light .modal-actions{
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,.90));
     }
 
     @media (max-width: 1100px){
@@ -496,7 +512,7 @@
 <body>
   <div class="app">
 
-    <!-- Service worker registration -->
+    <!-- Service worker -->
     <script>
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
@@ -621,9 +637,9 @@
         </div>
 
         <div class="hint">
-          <b>Note:</b> On GitHub Pages this app works fully offline and saves locally.
-          “Photo/PDF import” here stores a local preview (no AI extraction on GitHub Pages without a backend).
-          Use <b>IMPORT (PHOTO PAGE)</b> to auto-fill the flights from your sample page.
+          <b>Note:</b> On GitHub Pages this app works offline and saves locally.
+          Photo/PDF buttons store a preview reference (no AI extraction here without a backend).
+          Use <b>IMPORT (PHOTO PAGE)</b> to auto-fill the sample 10 flights.
         </div>
 
         <div class="preview" id="photoPrev"></div>
@@ -661,6 +677,7 @@
 
         <div class="field" style="grid-column:1/-1"><label>Remarks</label><input id="f_rem" placeholder=""></div>
 
+        <!-- ALWAYS VISIBLE -->
         <div class="modal-actions">
           <button class="btn" onclick="closeModal()">Cancel</button>
           <button class="btn gold" onclick="saveFromModal()">Save Flight</button>
@@ -677,14 +694,13 @@ const KEY_FLIGHTS = "mara_book_flights_v2";
 const KEY_PREV    = "mara_book_prev_v2";
 const KEY_THEME   = "mara_book_theme_v2";
 const KEY_ATTACH  = "mara_book_attach_v2";
-
 const ROWS_PER_PAGE = 10;
 const KEY_PAGE = "mara_page_v1";
 
 let currentPage = parseInt(localStorage.getItem(KEY_PAGE) || "1", 10);
 if (!currentPage || currentPage < 1) currentPage = 1;
 
-let flights = loadJSON(KEY_FLIGHTS, []); // we store null placeholders too
+let flights = loadJSON(KEY_FLIGHTS, []); // store null placeholders too
 
 let prev = loadJSON(KEY_PREV, {
   mp_me: "0:00",
@@ -747,8 +763,8 @@ function toMins(hhmm){
   const s = String(hhmm).trim();
   if(!s) return 0;
   if(s.includes(":")){
-    const [h,m] = s.split(":");
-    return (parseInt(h,10)||0)*60 + (parseInt(m,10)||0);
+    const parts = s.split(":");
+    return (parseInt(parts[0],10)||0)*60 + (parseInt(parts[1],10)||0);
   }
   const d = s.replace(/[^0-9]/g,"");
   if(d.length===4){
@@ -803,7 +819,7 @@ function renderPrev(){
   prevFields.forEach(([k,label])=>{
     const d = document.createElement("div");
     d.className="field";
-    d.innerHTML = `<label>${label}</label><input id="prev_${k}" value="${escapeHTML(prev[k]??"")}" placeholder="${k.includes('ldg')?'0':'H:MM'}">`;
+    d.innerHTML = '<label>'+label+'</label><input id="prev_'+k+'" value="'+escapeHTML(prev[k]??"")+'" placeholder="'+(k.includes("ldg")?'0':'H:MM')+'">';
     grid.appendChild(d);
     const el = d.querySelector("input");
     el.addEventListener("input", ()=>{
@@ -818,10 +834,9 @@ function renderPrev(){
    Table cell helper
    ========================= */
 function cellInput(idx, key, val, ph, cls){
-  const c = ["cell", cls||""].join(" ").trim();
+  const c = ("cell " + (cls||"")).trim();
   const v = (val===undefined || val===null) ? "" : String(val);
-  return `<input class="${c}" value="${escapeHTML(v)}" placeholder="${escapeHTML(ph||"")}"
-          oninput="onCell(${idx}, '${key}', this.value)">`;
+  return '<input class="'+c+'" value="'+escapeHTML(v)+'" placeholder="'+escapeHTML(ph||"")+'" oninput="onCell('+idx+', \''+key+'\', this.value)">';
 }
 
 /* =========================
@@ -843,10 +858,9 @@ function ensureRowObject(i){
 function onCell(i, key, value){
   ensureRowObject(i);
   const f = flights[i];
-
   f[key] = value;
 
-  if(["depPlace","arrPlace","acType","acReg"].includes(key)){
+  if(["depPlace","arrPlace","acType","acReg","name"].includes(key)){
     f[key] = up(value);
   }
 
@@ -854,11 +868,9 @@ function onCell(i, key, value){
     const block = calcBlock(f.out, f.in);
     if(block!==null){
       const blockStr = fmtMins(block);
-
       if(!f.total) f.total = blockStr;
       if(!f.mp) f.mp = blockStr;
       if(!f.me && !f.se) f.me = blockStr;
-
       if(!f.ifr) f.ifr = blockStr;
       if(!f.pic) f.pic = blockStr;
     }
@@ -890,12 +902,7 @@ function render(){
     saveJSON(KEY_FLIGHTS, flights);
   }
 
-  // totals for THIS page only
-  let sum = {
-    se:0, me:0, mp:0, total:0,
-    night:0, ifr:0, pic:0, cop:0, dual:0, fi:0,
-    ldgDay:0, ldgNight:0
-  };
+  let sum = { se:0, me:0, mp:0, total:0, night:0, ifr:0, pic:0, cop:0, dual:0, fi:0, ldgDay:0, ldgNight:0 };
 
   for(let r=0; r<ROWS_PER_PAGE; r++){
     const idx = start + r;
@@ -918,45 +925,32 @@ function render(){
 
     const v = (key) => (f && f[key]) ? f[key] : "";
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${cellInput(idx,"date", v("date"), "DD.MM.YY", "")}</td>
-
-      <td>${cellInput(idx,"depPlace", v("depPlace"), "ICAO", "upper")}</td>
-      <td>${cellInput(idx,"out", v("out"), "HHMM", "time")}</td>
-
-      <td>${cellInput(idx,"arrPlace", v("arrPlace"), "ICAO", "upper")}</td>
-      <td>${cellInput(idx,"in", v("in"), "HHMM", "time")}</td>
-
-      <td>${cellInput(idx,"acType", v("acType"), "B781", "upper")}</td>
-      <td>${cellInput(idx,"acReg", v("acReg"), "B-17806", "upper")}</td>
-
-      <td>${cellInput(idx,"name", v("name"), "SELF", "upper")}</td>
-
-      <td>${cellInput(idx,"se", v("se"), "H:MM", "")}</td>
-      <td>${cellInput(idx,"me", v("me"), "H:MM", "")}</td>
-      <td>${cellInput(idx,"mp", v("mp"), "H:MM", "")}</td>
-
-      <td>${cellInput(idx,"total", v("total"), "H:MM", "")}</td>
-
-      <td>${cellInput(idx,"night", v("night"), "H:MM", "")}</td>
-      <td>${cellInput(idx,"ifr", v("ifr"), "H:MM", "")}</td>
-
-      <td>${cellInput(idx,"pic", v("pic"), "H:MM", "")}</td>
-      <td>${cellInput(idx,"cop", v("cop"), "H:MM", "")}</td>
-      <td>${cellInput(idx,"dual", v("dual"), "H:MM", "")}</td>
-      <td>${cellInput(idx,"fi", v("fi"), "H:MM", "")}</td>
-
-      <td>${cellInput(idx,"ldgDay", v("ldgDay"), "0", "small")}</td>
-      <td>${cellInput(idx,"ldgNight", v("ldgNight"), "0", "small")}</td>
-
-      <td>${cellInput(idx,"remarks", v("remarks"), "", "")}</td>
-
-      <td>${f ? `<button class="del" onclick="clearRow(${idx})">×</button>` : ""}</td>
-    `;
+    tr.innerHTML =
+      '<td>'+cellInput(idx,"date", v("date"), "DD.MM.YY", "")+'</td>'+
+      '<td>'+cellInput(idx,"depPlace", v("depPlace"), "ICAO", "upper")+'</td>'+
+      '<td>'+cellInput(idx,"out", v("out"), "HHMM", "time")+'</td>'+
+      '<td>'+cellInput(idx,"arrPlace", v("arrPlace"), "ICAO", "upper")+'</td>'+
+      '<td>'+cellInput(idx,"in", v("in"), "HHMM", "time")+'</td>'+
+      '<td>'+cellInput(idx,"acType", v("acType"), "B781", "upper")+'</td>'+
+      '<td>'+cellInput(idx,"acReg", v("acReg"), "B-17806", "upper")+'</td>'+
+      '<td>'+cellInput(idx,"name", v("name"), "SELF", "upper")+'</td>'+
+      '<td>'+cellInput(idx,"se", v("se"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"me", v("me"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"mp", v("mp"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"total", v("total"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"night", v("night"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"ifr", v("ifr"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"pic", v("pic"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"cop", v("cop"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"dual", v("dual"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"fi", v("fi"), "H:MM", "")+'</td>'+
+      '<td>'+cellInput(idx,"ldgDay", v("ldgDay"), "0", "small")+'</td>'+
+      '<td>'+cellInput(idx,"ldgNight", v("ldgNight"), "0", "small")+'</td>'+
+      '<td>'+cellInput(idx,"remarks", v("remarks"), "", "")+'</td>'+
+      '<td>'+(f ? '<button class="del" onclick="clearRow('+idx+')">×</button>' : '')+'</td>';
     tbody.appendChild(tr);
   }
 
-  // Previous totals (manual)
   const p = {
     mp: toMins(prev.mp_me),
     total: toMins(prev.total),
@@ -987,76 +981,69 @@ function render(){
     ldgNight: sum.ldgNight + p.ldgNight
   };
 
-  // KPI (TOTAL TO DATE)
   document.getElementById("k_total").textContent = fmtMins(grand.total);
   document.getElementById("k_pic").textContent   = fmtMins(grand.pic);
   document.getElementById("k_night").textContent = fmtMins(grand.night);
   document.getElementById("k_ifr").textContent   = fmtMins(grand.ifr);
 
-  // Page label
   const maxPage = Math.max(1, Math.ceil(flights.length / ROWS_PER_PAGE));
   if(currentPage > maxPage) currentPage = maxPage;
-  document.getElementById("pageLabel").textContent = `PAGE ${currentPage} / ${maxPage}`;
+  document.getElementById("pageLabel").textContent = "PAGE " + currentPage + " / " + maxPage;
 
-  // Footer totals
-  document.getElementById("tfoot").innerHTML = `
-    <tr>
-      <td class="tfLabel" colspan="8">TOTAL FROM THIS PAGE</td>
-      <td>${sum.se ? fmtMins(sum.se) : "—"}</td>
-      <td>${sum.me ? fmtMins(sum.me) : "—"}</td>
-      <td>${sum.mp ? fmtMins(sum.mp) : "—"}</td>
-      <td>${sum.total ? fmtMins(sum.total) : "—"}</td>
-      <td>${sum.night ? fmtMins(sum.night) : "—"}</td>
-      <td>${sum.ifr ? fmtMins(sum.ifr) : "—"}</td>
-      <td>${sum.pic ? fmtMins(sum.pic) : "—"}</td>
-      <td>${sum.cop ? fmtMins(sum.cop) : "—"}</td>
-      <td>${sum.dual ? fmtMins(sum.dual) : "—"}</td>
-      <td>${sum.fi ? fmtMins(sum.fi) : "—"}</td>
-      <td>${sum.ldgDay || "—"}</td>
-      <td>${sum.ldgNight || "—"}</td>
-      <td colspan="2"></td>
-    </tr>
-
-    <tr>
-      <td class="tfLabel" colspan="8">TOTAL FROM PREVIOUS PAGE</td>
-      <td>—</td>
-      <td>—</td>
-      <td>${p.mp ? fmtMins(p.mp) : "—"}</td>
-      <td>${p.total ? fmtMins(p.total) : "—"}</td>
-      <td>${p.night ? fmtMins(p.night) : "—"}</td>
-      <td>${p.ifr ? fmtMins(p.ifr) : "—"}</td>
-      <td>${p.pic ? fmtMins(p.pic) : "—"}</td>
-      <td>${p.cop ? fmtMins(p.cop) : "—"}</td>
-      <td>${p.dual ? fmtMins(p.dual) : "—"}</td>
-      <td>${p.fi ? fmtMins(p.fi) : "—"}</td>
-      <td>${p.ldgDay || "—"}</td>
-      <td>${p.ldgNight || "—"}</td>
-      <td colspan="2"></td>
-    </tr>
-
-    <tr class="grand">
-      <td class="tfLabel" colspan="8">■ TOTAL TO DATE</td>
-      <td>${grand.se ? fmtMins(grand.se) : "—"}</td>
-      <td>${grand.me ? fmtMins(grand.me) : "—"}</td>
-      <td>${grand.mp ? fmtMins(grand.mp) : "—"}</td>
-      <td>${grand.total ? fmtMins(grand.total) : "—"}</td>
-      <td>${grand.night ? fmtMins(grand.night) : "—"}</td>
-      <td>${grand.ifr ? fmtMins(grand.ifr) : "—"}</td>
-      <td>${grand.pic ? fmtMins(grand.pic) : "—"}</td>
-      <td>${grand.cop ? fmtMins(grand.cop) : "—"}</td>
-      <td>${grand.dual ? fmtMins(grand.dual) : "—"}</td>
-      <td>${grand.fi ? fmtMins(grand.fi) : "—"}</td>
-      <td>${grand.ldgDay || "—"}</td>
-      <td>${grand.ldgNight || "—"}</td>
-      <td colspan="2"></td>
-    </tr>
-  `;
+  document.getElementById("tfoot").innerHTML =
+    '<tr>'+
+      '<td class="tfLabel" colspan="8">TOTAL FROM THIS PAGE</td>'+
+      '<td>'+(sum.se?fmtMins(sum.se):"—")+'</td>'+
+      '<td>'+(sum.me?fmtMins(sum.me):"—")+'</td>'+
+      '<td>'+(sum.mp?fmtMins(sum.mp):"—")+'</td>'+
+      '<td>'+(sum.total?fmtMins(sum.total):"—")+'</td>'+
+      '<td>'+(sum.night?fmtMins(sum.night):"—")+'</td>'+
+      '<td>'+(sum.ifr?fmtMins(sum.ifr):"—")+'</td>'+
+      '<td>'+(sum.pic?fmtMins(sum.pic):"—")+'</td>'+
+      '<td>'+(sum.cop?fmtMins(sum.cop):"—")+'</td>'+
+      '<td>'+(sum.dual?fmtMins(sum.dual):"—")+'</td>'+
+      '<td>'+(sum.fi?fmtMins(sum.fi):"—")+'</td>'+
+      '<td>'+(sum.ldgDay||"—")+'</td>'+
+      '<td>'+(sum.ldgNight||"—")+'</td>'+
+      '<td colspan="2"></td>'+
+    '</tr>'+
+    '<tr>'+
+      '<td class="tfLabel" colspan="8">TOTAL FROM PREVIOUS PAGE</td>'+
+      '<td>—</td><td>—</td>'+
+      '<td>'+(p.mp?fmtMins(p.mp):"—")+'</td>'+
+      '<td>'+(p.total?fmtMins(p.total):"—")+'</td>'+
+      '<td>'+(p.night?fmtMins(p.night):"—")+'</td>'+
+      '<td>'+(p.ifr?fmtMins(p.ifr):"—")+'</td>'+
+      '<td>'+(p.pic?fmtMins(p.pic):"—")+'</td>'+
+      '<td>'+(p.cop?fmtMins(p.cop):"—")+'</td>'+
+      '<td>'+(p.dual?fmtMins(p.dual):"—")+'</td>'+
+      '<td>'+(p.fi?fmtMins(p.fi):"—")+'</td>'+
+      '<td>'+(p.ldgDay||"—")+'</td>'+
+      '<td>'+(p.ldgNight||"—")+'</td>'+
+      '<td colspan="2"></td>'+
+    '</tr>'+
+    '<tr class="grand">'+
+      '<td class="tfLabel" colspan="8">■ TOTAL TO DATE</td>'+
+      '<td>'+(grand.se?fmtMins(grand.se):"—")+'</td>'+
+      '<td>'+(grand.me?fmtMins(grand.me):"—")+'</td>'+
+      '<td>'+(grand.mp?fmtMins(grand.mp):"—")+'</td>'+
+      '<td>'+(grand.total?fmtMins(grand.total):"—")+'</td>'+
+      '<td>'+(grand.night?fmtMins(grand.night):"—")+'</td>'+
+      '<td>'+(grand.ifr?fmtMins(grand.ifr):"—")+'</td>'+
+      '<td>'+(grand.pic?fmtMins(grand.pic):"—")+'</td>'+
+      '<td>'+(grand.cop?fmtMins(grand.cop):"—")+'</td>'+
+      '<td>'+(grand.dual?fmtMins(grand.dual):"—")+'</td>'+
+      '<td>'+(grand.fi?fmtMins(grand.fi):"—")+'</td>'+
+      '<td>'+(grand.ldgDay||"—")+'</td>'+
+      '<td>'+(grand.ldgNight||"—")+'</td>'+
+      '<td colspan="2"></td>'+
+    '</tr>';
 
   saveJSON(KEY_FLIGHTS, flights);
 }
 
 /* =========================
-   Modal
+   Modal behavior
    ========================= */
 function openModal(){
   document.getElementById("overlay").classList.add("open");
@@ -1066,11 +1053,12 @@ function closeModal(){
   document.getElementById("overlay").classList.remove("open");
 }
 function overlayClick(e){
-  if(e.target.id==="overlay") closeModal();
+  // keep tap-outside close, but iPad-safe because Save is always visible now
+  if(e.target && e.target.id==="overlay") closeModal();
 }
 
 /* =========================
-   Add Flight (fills first empty row on current page)
+   Add flight (place into first empty row on current page, else next page)
    ========================= */
 function saveFromModal(){
   const get = id => document.getElementById(id).value.trim();
@@ -1116,7 +1104,6 @@ function saveFromModal(){
   const start = (currentPage - 1) * ROWS_PER_PAGE;
   const end = start + ROWS_PER_PAGE;
 
-  // make sure placeholders exist
   if (flights.length < end) {
     for (let i = flights.length; i < end; i++) flights.push(null);
   }
@@ -1131,7 +1118,6 @@ function saveFromModal(){
   }
 
   if(!placed){
-    // current page full -> next page, first row
     setPage(currentPage + 1);
     const newStart = (currentPage - 1) * ROWS_PER_PAGE;
     const newEnd = newStart + ROWS_PER_PAGE;
@@ -1174,7 +1160,7 @@ function renderAttachPreview(){
   const p = document.getElementById("photoPrev");
   if(attach.photoDataUrl){
     p.style.display = "block";
-    p.innerHTML = `<img src="${attach.photoDataUrl}" alt="photo preview">`;
+    p.innerHTML = '<img src="'+attach.photoDataUrl+'" alt="photo preview">';
   }else{
     p.style.display = "none";
     p.innerHTML = "";
@@ -1183,12 +1169,12 @@ function renderAttachPreview(){
 }
 
 /* =========================
-   Backup / Restore
+   Backup / Restore / Reset
    ========================= */
 function exportBackup(){
   const payload = {
-    flights,
-    prev,
+    flights: flights,
+    prev: prev,
     theme: document.body.classList.contains("light") ? "light" : "dark",
     page: currentPage
   };
@@ -1215,8 +1201,9 @@ function importBackup(){
         saveJSON(KEY_FLIGHTS, flights);
         saveJSON(KEY_PREV, prev);
 
-        if(obj.theme) applyTheme(obj.theme === "light" ? "light" : "dark");
-        if(obj.page) setPage(parseInt(obj.page,10) || 1);
+        applyTheme(obj.theme === "light" ? "light" : "dark");
+        currentPage = parseInt(obj.page || "1", 10) || 1;
+        localStorage.setItem(KEY_PAGE, String(currentPage));
 
         renderPrev();
         render();
@@ -1262,9 +1249,7 @@ function resetAll(){
 }
 
 /* =========================
-   Import sample flights (from your photo page)
-   NOTE: This is the same “seed” list we used earlier.
-   You can edit any cell after import.
+   Import sample 10 flights (your photo page)
    ========================= */
 function seedFromPhoto(){
   if(!confirm("Import the 10 flights from your logbook photo page into Page 1?")) return;
@@ -1282,11 +1267,11 @@ function seedFromPhoto(){
     {date:"17.12", depPlace:"RCTP", out:"1153", arrPlace:"KDFW", in:"0112", acType:"B789", acReg:"B-17886", name:"SELF", total:"14:19",mp:"14:19",me:"14:19",night:"5:00", ifr:"14:19",pic:"14:19",ldgDay:"0",ldgNight:"0"}
   ];
 
-  // Reset to exactly one page of placeholders, then fill 10 rows
   flights = [];
   for(let i=0;i<ROWS_PER_PAGE;i++) flights.push(null);
 
-  seeded.forEach((x,i)=>{
+  for(let i=0;i<seeded.length;i++){
+    const x = seeded[i];
     flights[i] = {
       id: Date.now() + Math.floor(Math.random()*100000),
       date: x.date,
@@ -1311,7 +1296,7 @@ function seedFromPhoto(){
       ldgNight: x.ldgNight,
       remarks: ""
     };
-  });
+  }
 
   currentPage = 1;
   localStorage.setItem(KEY_PAGE, "1");
@@ -1320,18 +1305,20 @@ function seedFromPhoto(){
 }
 
 /* =========================
-   Init
+   Escaping
    ========================= */
 function escapeHTML(s){
-  return String(s||"").replace(/[&<>"']/g, m=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[m]));
+  return String(s||"").replace(/[&<>"']/g, function(m){
+    return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]);
+  });
 }
 
+/* =========================
+   Init
+   ========================= */
 applyTheme(localStorage.getItem(KEY_THEME) || "dark");
 renderPrev();
 render();
 </script>
-
 </body>
 </html>
