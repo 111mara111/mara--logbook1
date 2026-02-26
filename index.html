@@ -16,18 +16,6 @@
   <link rel="apple-touch-icon" href="./icon-192.png">
 
   <style>
-    /* =========================
-       Mara Logbook UI
-       - 10 rows per page
-       - ALL CAPS always
-       - TAB on empty time copies previous H:MM
-       - Totals rows highlighted (yellow both themes)
-       - Added FSTD totals in footer rows
-       - Header: IFR (renamed from IFR ACTUAL)
-       - Panel title: TOTAL FROM PREVIOUS PAGE
-       - REMOVED: SE, ME, MULTI PILOT columns and previous totals fields
-       ========================= */
-
     :root{
       /* DARK default */
       --bg:#071326;
@@ -51,6 +39,8 @@
 
       --shadow:0 24px 80px rgba(0,0,0,.35);
       --totals-accent:var(--gold);
+
+      --pilot-muted: rgba(234,240,255,.55);
     }
 
     body.light{
@@ -63,7 +53,7 @@
       --line:rgba(11,26,51,.12);
       --line2:rgba(11,26,51,.06);
 
-      /* same yellow */
+      /* keep yellow */
       --gold:#d9bb62;
       --gold2:#caa84a;
       --totals-accent:var(--gold);
@@ -74,6 +64,8 @@
       --rowHover:rgba(217,187,98,.10);
 
       --shadow:0 24px 70px rgba(10,25,60,.12);
+
+      --pilot-muted: rgba(11,26,51,.55);
     }
 
     *{box-sizing:border-box}
@@ -118,7 +110,7 @@
       letter-spacing:3px;
       text-transform:uppercase;
       color:var(--muted);
-      font-weight:1000;
+      font-weight:1000; /* more visible */
     }
 
     .kpis{
@@ -144,7 +136,7 @@
       letter-spacing:3px;
       text-transform:uppercase;
       color:var(--muted);
-      font-weight:1000;
+      font-weight:1000; /* more visible */
     }
 
     .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
@@ -279,6 +271,17 @@
       font-size:12px;
     }
 
+    /* PILOT line in footer - less visible + aligned right */
+    .pilotline{
+      text-align:right;
+      color:var(--pilot-muted) !important;
+      font-size:9px;
+      letter-spacing:1px;
+      font-weight:900;
+      padding-right:10px;
+      white-space:nowrap;
+    }
+
     .del{
       border-radius:10px;border:1px solid rgba(208,107,95,.35);
       background:rgba(208,107,95,.12);
@@ -363,17 +366,37 @@
       table{min-width:1600px}
     }
 
-        @media print{
-      .topbar,.panel-h .right,.del,.overlay{display:none !important}
-      body{background:#fff}
-      .panel{box-shadow:none;background:#fff}
-      @page{size:A4 landscape;margin:10mm}
-    }
-
-    /* EASA FOOTER */
-    .print-footer-easa{display:none}
+    /* ===== PRINT / PDF ===== */
+    .print-footer-easa,
+    .print-signature,
+    .print-watermark { display:none; }
 
     @media print{
+      /* hide UI */
+      .topbar,.panel-h .right,.del,.overlay{display:none !important}
+
+      /* remove background / shadows */
+      body{background:#fff !important}
+      .app{max-width:none; padding:0 !important; margin:0 !important}
+      .panel{box-shadow:none !important; background:#fff !important; border:0 !important; margin-top:6mm}
+
+      /* make table fit A4 landscape */
+      .table-wrap{overflow:visible !important; background:#fff !important}
+      table{min-width:0 !important; width:100% !important; font-size:8px !important}
+      th,td{padding:3px 2px !important}
+      thead th{font-size:8px !important; letter-spacing:1px !important}
+
+      /* zoom (Safari/Chrome) + transform fallback */
+      .panel{page-break-inside:avoid}
+      .table-wrap{zoom:0.78;}
+      .table-wrap{
+        transform:scale(0.98);
+        transform-origin: top left;
+      }
+
+      @page{size:A4 landscape; margin:8mm}
+
+      /* footer + signature + watermark */
       .print-footer-easa{
         display:block;
         position:fixed;
@@ -381,14 +404,45 @@
         left:0;
         width:100%;
         text-align:center;
-        font-size:10px;
-        font-weight:1000;
+        font-size:9px;
+        font-weight:900;
         letter-spacing:2px;
+        color:#444;
+      }
+
+      .print-signature{
+        display:block;
+        position:fixed;
+        bottom:14mm;
+        right:8mm;
+        width:70mm;
+        text-align:left;
+        font-size:9px;
+        color:#444;
+      }
+      .sig-line{
+        border-top:1px solid #666;
+        margin-top:6mm;
+        padding-top:2mm;
+        font-weight:900;
+        letter-spacing:1px;
+      }
+
+      .print-watermark{
+        display:block;
+        position:fixed;
+        bottom:5mm;
+        right:8mm;
+        font-size:9px;
+        color:#666;
+        letter-spacing:1px;
+        font-weight:900;
+      }
+      .print-watermark::after{
+        content:"PAGE " counter(page);
       }
     }
-
   </style>
-  
 </head>
 
 <body>
@@ -397,7 +451,6 @@
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
       }
-
     </script>
 
     <!-- TOPBAR -->
@@ -470,7 +523,6 @@
 
               <th>TOTAL<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">FLIGHT</span></th>
 
-              <!-- LDG columns behind TOTAL FLIGHT -->
               <th>DAY<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
               <th>NIGHT<br><span style="font-size:9px;letter-spacing:1px;opacity:.7;">LDG</span></th>
 
@@ -503,6 +555,13 @@
       </div>
     </div>
   </div>
+
+  <!-- PRINT ONLY FOOTERS -->
+  <div class="print-signature">
+    <div class="sig-line">SIGNATURE</div>
+  </div>
+  <div class="print-footer-easa">EASA FCL LOGBOOK FORMAT • MARIO MARIC | LICENCE NO: HR.FCL.A.0059</div>
+  <div class="print-watermark"></div>
 
   <!-- MODAL -->
   <div class="overlay" id="overlay" onclick="overlayClick(event)">
@@ -573,12 +632,14 @@
 /* =========================
    Storage + State
    ========================= */
-const KEY_FLIGHTS = "mara_book_flights_v6";
-const KEY_PREV    = "mara_book_prev_v6";
-const KEY_THEME   = "mara_book_theme_v6";
-const KEY_ATTACH  = "mara_book_attach_v6";
-const KEY_PAGE    = "mara_page_v5";
+const KEY_FLIGHTS = "mara_book_flights_v7";
+const KEY_PREV    = "mara_book_prev_v7";
+const KEY_THEME   = "mara_book_theme_v7";
+const KEY_ATTACH  = "mara_book_attach_v7";
+const KEY_PAGE    = "mara_page_v7";
 const ROWS_PER_PAGE = 10;
+
+const PILOT_TEXT = "PILOT: MARIO MARIC | LICENCE NO: HR.FCL.A.0059";
 
 let currentPage = parseInt(localStorage.getItem(KEY_PAGE) || "1", 10);
 if (!currentPage || currentPage < 1) currentPage = 1;
@@ -613,7 +674,8 @@ function saveJSON(k, v){
    Page
    ========================= */
 function setPage(p){
-  currentPage = Math.max(1, p);
+  const maxPage = Math.max(1, Math.ceil((flights.length || 1) / ROWS_PER_PAGE));
+  currentPage = Math.max(1, Math.min(p, maxPage));
   localStorage.setItem(KEY_PAGE, String(currentPage));
   render();
 }
@@ -847,8 +909,39 @@ function clearRow(index){
 }
 
 /* =========================
+   Focus first empty row (after Save)
+   ========================= */
+function focusFirstEmptyRow(){
+  const start = (currentPage - 1) * ROWS_PER_PAGE;
+  const end = start + ROWS_PER_PAGE;
+
+  for(let i=start; i<end; i++){
+    if(!flights[i]){
+      const rowIndex = i - start;
+      const tbody = document.getElementById("tbody");
+      const row = tbody.children[rowIndex];
+      if(row){
+        const firstInput = row.querySelector("input");
+        if(firstInput){
+          firstInput.focus();
+          return;
+        }
+      }
+    }
+  }
+  // if no empty row, focus first row
+  const tbody = document.getElementById("tbody");
+  const row = tbody.children[0];
+  if(row){
+    const firstInput = row.querySelector("input");
+    if(firstInput) firstInput.focus();
+  }
+}
+
+/* =========================
    Render (10 rows per page)
    + Adds FSTD totals in footer rows
+   + PILOT line positioned in bottom-right (colspan=2)
    ========================= */
 function render(){
   const tbody = document.getElementById("tbody");
@@ -957,7 +1050,7 @@ function render(){
   if(currentPage > maxPage) currentPage = maxPage;
   document.getElementById("pageLabel").textContent = "PAGE " + currentPage + " / " + maxPage;
 
-  /* Footer rows */
+  /* Footer rows (22 columns total; last 2 are used for PILOT line in grand row) */
   document.getElementById("tfoot").innerHTML =
     '<tr class="total-this">'+
       '<td class="tfLabel" colspan="8">TOTAL FROM THIS PAGE</td>'+
@@ -1006,8 +1099,7 @@ function render(){
       '<td>'+(grand.fi?fmtMins(grand.fi):"—")+'</td>'+
       '<td colspan="2">—</td>'+
       '<td>'+(grand.fstd?fmtMins(grand.fstd):"—")+'</td>'+
-      '<td></td>'+
-      '<td></td>'+
+      '<td class="pilotline" colspan="2">'+escapeHTML(PILOT_TEXT)+'</td>'+
     '</tr>';
 
   saveJSON(KEY_FLIGHTS, flights);
@@ -1020,8 +1112,24 @@ function openModal(){ document.getElementById("overlay").classList.add("open"); 
 function closeModal(){ document.getElementById("overlay").classList.remove("open"); }
 function overlayClick(e){ if(e.target && e.target.id==="overlay") closeModal(); }
 
+function clearModalFields(){
+  const ids = [
+    "f_date","f_name","f_dep","f_out","f_arr","f_in","f_type","f_reg",
+    "f_total","f_night","f_ifr","f_pic","f_cop","f_dual","f_fi",
+    "f_ldg_day","f_ldg_night","f_sim_date","f_sim_type","f_sim_total","f_rem"
+  ];
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(el.type === "number") el.value = "";
+    else el.value = "";
+  });
+}
+
 /* =========================
-   Add flight (first empty row on current page, else next page)
+   Add flight
+   Workflow:
+   SAVE -> modal closes -> fields cleared -> focus first empty row
    ========================= */
 function saveFromModal(){
   const get = id => up(document.getElementById(id).value.trim());
@@ -1080,7 +1188,9 @@ function saveFromModal(){
   }
 
   if(!placed){
-    setPage(currentPage + 1);
+    // go to next page and place first row
+    currentPage = currentPage + 1;
+    localStorage.setItem(KEY_PAGE, String(currentPage));
     const newStart = (currentPage - 1) * ROWS_PER_PAGE;
     const newEnd = newStart + ROWS_PER_PAGE;
     if (flights.length < newEnd) for (let i = flights.length; i < newEnd; i++) flights.push(null);
@@ -1092,17 +1202,14 @@ function saveFromModal(){
 
   saveJSON(KEY_FLIGHTS, flights);
 
-  /* CLEAR MODAL */
-  document.querySelectorAll(".modal input").forEach(i=>i.value="");
-  attach = { photoDataUrl:"", pdfName:"" };
-  saveJSON(KEY_ATTACH, attach);
-  renderAttachPreview();
-
   closeModal();
+  clearModalFields();
   render();
 
-  setTimeout(focusFirstEmptyRow, 80);
+  // focus after DOM updates
+  setTimeout(focusFirstEmptyRow, 50);
 }
+
 /* =========================
    Attachments (local preview only)
    ========================= */
@@ -1270,26 +1377,9 @@ function seedFromPhoto(){
 
   _lastTimeValue = isTimeHM(flights[0]?.total) ? flights[0].total : _lastTimeValue;
   render();
+  setTimeout(focusFirstEmptyRow, 50);
 }
-function focusFirstEmptyRow(){
-  const start = (currentPage - 1) * ROWS_PER_PAGE;
-  const end = start + ROWS_PER_PAGE;
 
-  for(let i=start; i<end; i++){
-    if(!flights[i]){
-      const rowIndex = i - start;
-      const tbody = document.getElementById("tbody");
-      const row = tbody.children[rowIndex];
-      if(row){
-        const firstInput = row.querySelector("input");
-        if(firstInput){
-          firstInput.focus();
-          return;
-        }
-      }
-    }
-  }
-}
 /* =========================
    Escaping
    ========================= */
@@ -1305,10 +1395,6 @@ function escapeHTML(s){
 applyTheme(localStorage.getItem(KEY_THEME) || "dark");
 renderPrev();
 render();
-</script>ƒƒ
-  <div class="print-footer-easa">
-  PILOT: MARIO MARIC | LICENCE NO: HR.FCL.A.0059
-</div>
-
+</script>
 </body>
 </html>
