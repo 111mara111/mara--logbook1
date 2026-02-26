@@ -383,8 +383,26 @@
     margin:6mm;
   }
 
-  /* hide UI */
-  .topbar,.panel-h .right,.del,.overlay{
+  /* HIDE ALL UI */
+  .topbar,
+  .overlay,
+  .del,
+  /* hide TOTAL FROM PREVIOUS PAGE panel (it's the 1st panel) */
+  .panel:nth-of-type(1){
+    display:none !important;
+  }
+
+  /* show ONLY the logbook table panel (2nd panel) */
+  .panel:nth-of-type(2){
+    display:block !important;
+    margin:0 !important;
+    border:0 !important;
+    box-shadow:none !important;
+    background:#fff !important;
+  }
+
+  /* hide the logbook panel header title too (optional) */
+  .panel:nth-of-type(2) .panel-h{
     display:none !important;
   }
 
@@ -399,32 +417,11 @@
     margin:0 !important;
   }
 
-  .panel{
-    box-shadow:none !important;
-    background:#fff !important;
-    border:0 !important;
-    margin:0 !important;
-  }
-
-  .panel-h{
-    background:#fff !important;
-    border:0 !important;
-    padding:0 0 2mm 0 !important;
-  }
-
-  .panel-h .left{
-    color:#000 !important;
-    font-weight:900 !important;
-  }
-
-  /* ===== FIT FULL LOGBOOK PAGE ===== */
-
-  .table-wrap{
+  /* ===== FIT FULL LOGBOOK TABLE ===== */
+  .panel:nth-of-type(2) .table-wrap{
     overflow:visible !important;
     background:#fff !important;
-
-    /* main fit scaling */
-    zoom:0.68 !important;
+    zoom:0.68 !important; /* adjust if needed */
   }
 
   table{
@@ -456,11 +453,9 @@
     font-weight:900 !important;
   }
 
-  input.cell::placeholder{
-    color:#777 !important;
-  }
+  input.cell::placeholder{ color:#777 !important; }
 
-  /* totals */
+  /* totals rows highlight */
   .total-this td,
   .total-prev td,
   .grand td{
@@ -472,9 +467,10 @@
   .pilotline{
     font-size:8px !important;
     color:#000 !important;
+    opacity:1 !important;
   }
 
-  /* footer */
+  /* footer / signature / watermark (keep if you want) */
   .print-footer-easa{
     display:block !important;
     position:fixed;
@@ -514,7 +510,6 @@
     font-weight:900;
     color:#000;
   }
-
   .print-watermark::after{
     content:"PAGE " counter(page);
   }
