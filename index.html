@@ -372,107 +372,109 @@
     .print-watermark { display:none; }
 
     @media print{
-  /* IMPORTANT: keep colors strong in Safari */
+
   *{
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* hide UI */
-  .topbar,.panel-h .right,.del,.overlay{display:none !important}
+  @page{
+    size:A4 landscape;
+    margin:6mm;
+  }
 
-  /* remove gradients/transparency that print too light */
+  /* hide UI */
+  .topbar,.panel-h .right,.del,.overlay{
+    display:none !important;
+  }
+
   body{
     background:#fff !important;
     color:#000 !important;
   }
+
   .app{
     max-width:none !important;
     padding:0 !important;
     margin:0 !important;
   }
+
   .panel{
     box-shadow:none !important;
     background:#fff !important;
     border:0 !important;
-    margin:0 0 6mm 0 !important; /* remove big empty space */
+    margin:0 !important;
   }
+
   .panel-h{
     background:#fff !important;
     border:0 !important;
     padding:0 0 2mm 0 !important;
   }
+
   .panel-h .left{
-    color:#111 !important;
+    color:#000 !important;
     font-weight:900 !important;
-    opacity:1 !important;
   }
 
-  /* table: make it readable */
+  /* ===== FIT FULL LOGBOOK PAGE ===== */
+
   .table-wrap{
     overflow:visible !important;
     background:#fff !important;
-    zoom:1 !important;              /* cancel previous zoom */
-    transform:none !important;      /* cancel previous transform */
+
+    /* main fit scaling */
+    zoom:0.68 !important;
   }
 
   table{
     width:100% !important;
     min-width:0 !important;
     border-collapse:collapse !important;
-    font-size:9.2px !important;     /* bigger + readable */
+    font-size:8px !important;
     color:#000 !important;
   }
+
   th,td{
-    padding:3.5px 2.5px !important;
-    border:1px solid #444 !important;  /* stronger grid */
-    color:#000 !important;
-    opacity:1 !important;
+    padding:2px 2px !important;
+    border:1px solid #333 !important;
     background:#fff !important;
+    color:#000 !important;
   }
 
   thead th{
-    background:#2f3440 !important;  /* solid dark header */
+    background:#2f3440 !important;
     color:#fff !important;
     font-weight:900 !important;
     letter-spacing:1px !important;
-    opacity:1 !important;
   }
 
-  /* inputs print like text */
   input.cell{
-    color:#000 !important;
-    opacity:1 !important;
-    -webkit-text-fill-color:#000 !important;
     background:transparent !important;
+    color:#000 !important;
+    -webkit-text-fill-color:#000 !important;
     font-weight:900 !important;
   }
+
   input.cell::placeholder{
     color:#777 !important;
-    opacity:1 !important;
   }
 
-  /* totals rows: readable highlight */
-  .total-this td, .total-prev td, .grand td{
-    background:#f3e6b5 !important;  /* warm light yellow */
-    color:#000 !important;
-    font-weight:900 !important;
-    opacity:1 !important;
-  }
-  .tfLabel{
+  /* totals */
+  .total-this td,
+  .total-prev td,
+  .grand td{
+    background:#f3e6b5 !important;
     color:#000 !important;
     font-weight:900 !important;
   }
+
   .pilotline{
-    color:#111 !important;          /* visible but not screaming */
-    font-size:8.6px !important;
-    opacity:1 !important;
+    font-size:8px !important;
+    color:#000 !important;
   }
 
-  /* page setup */
-  @page{size:A4 landscape; margin:8mm}
-
-  /* print footer + signature + watermark (keep) */
+  /* footer */
   .print-footer-easa{
     display:block !important;
     position:fixed;
@@ -483,7 +485,7 @@
     font-size:9px;
     font-weight:900;
     letter-spacing:2px;
-    color:#111;
+    color:#000;
   }
 
   .print-signature{
@@ -492,16 +494,15 @@
     bottom:14mm;
     right:8mm;
     width:70mm;
-    text-align:left;
     font-size:9px;
-    color:#111;
+    color:#000;
   }
+
   .sig-line{
-    border-top:1px solid #111;
+    border-top:1px solid #000;
     margin-top:6mm;
     padding-top:2mm;
     font-weight:900;
-    letter-spacing:1px;
   }
 
   .print-watermark{
@@ -510,36 +511,13 @@
     bottom:5mm;
     right:8mm;
     font-size:9px;
-    color:#111;
-    letter-spacing:1px;
     font-weight:900;
+    color:#000;
   }
+
   .print-watermark::after{
     content:"PAGE " counter(page);
   }
-        /* === FIT EVERYTHING TO ONE A4 LANDSCAPE PAGE === */
-  @page{ size:A4 landscape; margin:6mm; }
-
-  .app{ padding:0 !important; margin:0 !important; max-width:none !important; }
-  .panel{ margin:0 !important; border:0 !important; }
-  .panel-h{ padding:0 0 2mm 0 !important; }
-
-  /* remove any min-width that forces overflow */
-  table{ min-width:0 !important; width:100% !important; }
-
-  /* scale down whole logbook table to fit */
-  .table-wrap{
-    overflow:visible !important;
-    background:#fff !important;
-    width:100% !important;
-
-    /* Safari/Chrome best-fit */
-    zoom:0.72 !important;
-  }
-
-  /* make rows tighter so all 10 fit */
-  th,td{ padding:2.5px 2px !important; }
-  table{ font-size:8.2px !important; }
 }
   </style>
 </head>
