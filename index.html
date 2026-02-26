@@ -398,25 +398,6 @@
         navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
       }
 
-      function focusFirstEmptyRow(){
-  const start = (currentPage - 1) * ROWS_PER_PAGE;
-  const end = start + ROWS_PER_PAGE;
-
-  for(let i=start; i<end; i++){
-    if(!flights[i]){
-      const rowIndex = i - start;
-      const tbody = document.getElementById("tbody");
-      const row = tbody.children[rowIndex];
-      if(row){
-        const firstInput = row.querySelector("input");
-        if(firstInput){
-          firstInput.focus();
-          return;
-        }
-      }
-    }
-  }
-}
     </script>
 
     <!-- TOPBAR -->
@@ -1290,7 +1271,25 @@ function seedFromPhoto(){
   _lastTimeValue = isTimeHM(flights[0]?.total) ? flights[0].total : _lastTimeValue;
   render();
 }
+function focusFirstEmptyRow(){
+  const start = (currentPage - 1) * ROWS_PER_PAGE;
+  const end = start + ROWS_PER_PAGE;
 
+  for(let i=start; i<end; i++){
+    if(!flights[i]){
+      const rowIndex = i - start;
+      const tbody = document.getElementById("tbody");
+      const row = tbody.children[rowIndex];
+      if(row){
+        const firstInput = row.querySelector("input");
+        if(firstInput){
+          firstInput.focus();
+          return;
+        }
+      }
+    }
+  }
+}
 /* =========================
    Escaping
    ========================= */
