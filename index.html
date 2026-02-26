@@ -363,12 +363,31 @@
       table{min-width:1600px}
     }
 
-    @media print{
+        @media print{
       .topbar,.panel-h .right,.del,.overlay{display:none !important}
       body{background:#fff}
       .panel{box-shadow:none;background:#fff}
       @page{size:A4 landscape;margin:10mm}
     }
+
+    /* EASA FOOTER */
+    .print-footer-easa{display:none}
+
+    @media print{
+      .print-footer-easa{
+        display:block;
+        position:fixed;
+        bottom:5mm;
+        left:0;
+        width:100%;
+        text-align:center;
+        font-size:10px;
+        font-weight:1000;
+        letter-spacing:2px;
+      }
+    }
+
+  </style>
   </style>
 </head>
 
@@ -1259,6 +1278,10 @@ function escapeHTML(s){
 applyTheme(localStorage.getItem(KEY_THEME) || "dark");
 renderPrev();
 render();
-</script>
+</script
+  <div class="print-footer-easa">
+  PILOT: MARIO MARIC | LICENCE NO: HR.FCL.A.0059
+</div>
+
 </body>
 </html>
