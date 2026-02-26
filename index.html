@@ -397,6 +397,26 @@
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
       }
+
+      function focusFirstEmptyRow(){
+  const start = (currentPage - 1) * ROWS_PER_PAGE;
+  const end = start + ROWS_PER_PAGE;
+
+  for(let i=start; i<end; i++){
+    if(!flights[i]){
+      const rowIndex = i - start;
+      const tbody = document.getElementById("tbody");
+      const row = tbody.children[rowIndex];
+      if(row){
+        const firstInput = row.querySelector("input");
+        if(firstInput){
+          firstInput.focus();
+          return;
+        }
+      }
+    }
+  }
+}
     </script>
 
     <!-- TOPBAR -->
@@ -1090,10 +1110,18 @@ function saveFromModal(){
   if(isTimeHM(row.simTotal)) _lastTimeValue = row.simTotal;
 
   saveJSON(KEY_FLIGHTS, flights);
+
+  /* CLEAR MODAL */
+  document.querySelectorAll(".modal input").forEach(i=>i.value="");
+  attach = { photoDataUrl:"", pdfName:"" };
+  saveJSON(KEY_ATTACH, attach);
+  renderAttachPreview();
+
   closeModal();
   render();
-}
 
+  setTimeout(focusFirstEmptyRow, 80);
+}
 /* =========================
    Attachments (local preview only)
    ========================= */
